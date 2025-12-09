@@ -231,10 +231,34 @@ flags.DEFINE_boolean(
     'recommended to enable if possible. GPUs must be available'
     ' if this setting is enabled.',
 )
+# flags.DEFINE_integer(
+#     'jackhmmer_n_cpu',
+#     # Unfortunately, os.process_cpu_count() is only available in Python 3.13+.
+#     min(len(os.sched_getaffinity(0)), 8),
+#     'Number of CPUs to use for Jackhmmer. Defaults to min(cpu_count, 8). Going'
+#     ' above 8 CPUs provides very little additional speedup.',
+#     lower_bound=0,
+# )
+# flags.DEFINE_integer(
+#     'hmmsearch_n_cpu',
+#     # Unfortunately, os.process_cpu_count() is only available in Python 3.13+.
+#     min(len(os.sched_getaffinity(0)), 8),
+#     'Number of CPUs to use for HMMsearch. Defaults to min(cpu_count, 8). Going'
+#     ' above 8 CPUs provides very little additional speedup.',
+#     lower_bound=0,
+# )
+# flags.DEFINE_integer(
+#     'hhsearch_n_cpu',
+#     # Unfortunately, os.process_cpu_count() is only available in Python 3.13+.
+#     min(len(os.sched_getaffinity(0)), 8),
+#     'Number of CPUs to use for HHsearch. Defaults to min(cpu_count, 8). Going'
+#     ' above 8 CPUs provides very little additional speedup.',
+#     lower_bound=0,
+# )
 flags.DEFINE_integer(
     'jackhmmer_n_cpu',
     # Unfortunately, os.process_cpu_count() is only available in Python 3.13+.
-    min(len(os.sched_getaffinity(0)), 8),
+    8,
     'Number of CPUs to use for Jackhmmer. Defaults to min(cpu_count, 8). Going'
     ' above 8 CPUs provides very little additional speedup.',
     lower_bound=0,
@@ -242,7 +266,7 @@ flags.DEFINE_integer(
 flags.DEFINE_integer(
     'hmmsearch_n_cpu',
     # Unfortunately, os.process_cpu_count() is only available in Python 3.13+.
-    min(len(os.sched_getaffinity(0)), 8),
+    8,
     'Number of CPUs to use for HMMsearch. Defaults to min(cpu_count, 8). Going'
     ' above 8 CPUs provides very little additional speedup.',
     lower_bound=0,
@@ -250,11 +274,12 @@ flags.DEFINE_integer(
 flags.DEFINE_integer(
     'hhsearch_n_cpu',
     # Unfortunately, os.process_cpu_count() is only available in Python 3.13+.
-    min(len(os.sched_getaffinity(0)), 8),
+    8,
     'Number of CPUs to use for HHsearch. Defaults to min(cpu_count, 8). Going'
     ' above 8 CPUs provides very little additional speedup.',
     lower_bound=0,
 )
+
 
 FLAGS = flags.FLAGS
 
@@ -602,7 +627,8 @@ def main(argv):
     num_ensemble = 8
   else:
     num_ensemble = 1
-
+  if not isinstance(FLAGS.fasta_paths, list):
+      FLAGS.fasta_paths = [FLAGS.fasta_paths]
   # Check for duplicate FASTA file names.
   fasta_names = [pathlib.Path(p).stem for p in FLAGS.fasta_paths]
   if len(fasta_names) != len(set(fasta_names)):
@@ -730,3 +756,29 @@ if __name__ == '__main__':
   ])
 
   app.run(main)
+# python3  run_alphafold.py \
+#   --fasta_paths=T1050.fasta \
+#   --max_template_date=2020-05-14 \
+#   --model_preset=monomer \
+#   --db_preset=reduced_dbs \
+#   --data_dir="" \
+#   --output_dir= "absolute/output_dir"
+
+  # import sys
+  # from pathlib import Path
+  # from absl import app, flags
+  #
+  # input_json = 'example_input.json'
+
+  # input_fasta = Path(input_json).stem + "_protein.fasta"
+  # extract_fasta(input_json, input_fasta)
+
+
+  # sys.argv += [
+  #     f"--json_path={Path(input_json).absolute()}",
+  #     f"--output_dir={Path('runs/original_alphafold').absolute()}",
+  #     f"--model_dir={None}",
+  #     f"--run_inference={False}",
+  #     f"--db_dir={Path('../uniprot_test/all_databases/public_databases').absolute()}",
+  # ]
+  #

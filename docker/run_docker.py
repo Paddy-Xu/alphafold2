@@ -316,3 +316,12 @@ if __name__ == '__main__':
       'max_template_date',
   ])
   app.run(main)
+
+# python3  run_docker.py \
+#   --fasta_paths=T1050.fasta \
+#   --max_template_date=2020-05-14 \
+#   --model_preset=monomer \
+#   --db_preset=reduced_dbs \
+#   --data_dir="" \
+#   --output_dir="absolute/output_dir"
+
