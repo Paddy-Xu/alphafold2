@@ -25,6 +25,7 @@ from absl import logging
 # import docker
 # from docker import types
 import run_alphafold
+import alphafold
 
 flags.DEFINE_bool('use_gpu', True, 'Enable NVIDIA runtime to run with GPUs.')
 # flags.DEFINE_enum(
