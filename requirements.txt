@@ -10,5 +10,5 @@ pytest<8.5.0
 setuptools<72.0.0
 # tensorflow-cpu==2.16.1
 # tensorflow-cpu
-
+jaxlib==0.4.26
 tensorflow
