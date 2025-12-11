@@ -75,13 +75,13 @@ def main(argv):
 
     if run_multimer_system:
         num_predictions_per_model = FLAGS.num_multimer_predictions_per_model
-        # data_pipeline = pipeline_multimer.DataPipeline(
-        #     monomer_data_pipeline=monomer_data_pipeline,
-        #     jackhmmer_binary_path=FLAGS.jackhmmer_binary_path,
-        #     uniprot_database_path=FLAGS.uniprot_database_path,
-        #     use_precomputed_msas=FLAGS.use_precomputed_msas,
-        #     jackhmmer_n_cpu=FLAGS.jackhmmer_n_cpu,
-        # )
+        data_pipeline = pipeline_multimer.DataPipeline(
+            monomer_data_pipeline=monomer_data_pipeline,
+            jackhmmer_binary_path=FLAGS.jackhmmer_binary_path,
+            uniprot_database_path=FLAGS.uniprot_database_path,
+            use_precomputed_msas=FLAGS.use_precomputed_msas,
+            jackhmmer_n_cpu=FLAGS.jackhmmer_n_cpu,
+        )
     else:
         num_predictions_per_model = 1
         data_pipeline = monomer_data_pipeline
@@ -178,10 +178,10 @@ def main(argv):
         # all_a3ms = [f"{a3m_filename}_on_{db}_a3m.fasta"
         #             for db in all_database_exact_names]
         #
-        if not run_multimer_system:
-            feature_dict = data_pipeline.process(
-                input_fasta_path=fasta_path, msa_output_dir=msa_output_dir, all_dbs=all_dbs
-            )
+
+        feature_dict = data_pipeline.process(
+            input_fasta_path=fasta_path, msa_output_dir=msa_output_dir, all_dbs=all_dbs
+        )
 
         timings['features'] = time.time() - t_0
 
