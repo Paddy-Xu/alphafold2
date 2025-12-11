@@ -1,5 +1,10 @@
 from run_alphafold import *
 from alphafold.data.pipeline import *
+from alphafold.data.pipeline_pre_run import DataPipelineNew
+from pathlib import Path
+
+
+
 
 def main(argv):
     if len(argv) > 1:
@@ -48,20 +53,20 @@ def main(argv):
             obsolete_pdbs_path=FLAGS.obsolete_pdbs_path,
         )
 
-    # monomer_data_pipeline = pipeline.DataPipeline(
-    #     jackhmmer_binary_path=FLAGS.jackhmmer_binary_path,
-    #     hhblits_binary_path=FLAGS.hhblits_binary_path,
-    #     uniref90_database_path=FLAGS.uniref90_database_path,
-    #     mgnify_database_path=FLAGS.mgnify_database_path,
-    #     bfd_database_path=FLAGS.bfd_database_path,
-    #     uniref30_database_path=FLAGS.uniref30_database_path,
-    #     small_bfd_database_path=FLAGS.small_bfd_database_path,
-    #     template_searcher=template_searcher,
-    #     template_featurizer=template_featurizer,
-    #     use_small_bfd=use_small_bfd,
-    #     use_precomputed_msas=FLAGS.use_precomputed_msas,
-    #     msa_tools_n_cpu=FLAGS.jackhmmer_n_cpu,
-    # )
+    monomer_data_pipeline = DataPipelineNew(
+        jackhmmer_binary_path=FLAGS.jackhmmer_binary_path,
+        hhblits_binary_path=FLAGS.hhblits_binary_path,
+        uniref90_database_path=FLAGS.uniref90_database_path,
+        mgnify_database_path=FLAGS.mgnify_database_path,
+        bfd_database_path=FLAGS.bfd_database_path,
+        uniref30_database_path=FLAGS.uniref30_database_path,
+        small_bfd_database_path=FLAGS.small_bfd_database_path,
+        template_searcher=template_searcher,
+        template_featurizer=template_featurizer,
+        use_small_bfd=use_small_bfd,
+        use_precomputed_msas=FLAGS.use_precomputed_msas,
+        msa_tools_n_cpu=FLAGS.jackhmmer_n_cpu,
+    )
 
     if run_multimer_system:
         num_predictions_per_model = FLAGS.num_multimer_predictions_per_model
@@ -74,7 +79,7 @@ def main(argv):
         # )
     else:
         num_predictions_per_model = 1
-        # data_pipeline = monomer_data_pipeline
+        data_pipeline = monomer_data_pipeline
 
     model_runners = {}
     model_names = config.MODEL_PRESETS[FLAGS.model_preset]
@@ -116,7 +121,7 @@ def main(argv):
         fasta_path=fasta_path
         fasta_name=fasta_name
         output_dir_base=FLAGS.output_dir
-        # data_pipeline=data_pipeline
+
         model_runners=model_runners
         amber_relaxer=amber_relaxer
 
@@ -130,134 +135,41 @@ def main(argv):
 
         t_0 = time.time()
 
-        if not run_multimer_system:
-
-            jackhmmer_binary_path = FLAGS.jackhmmer_binary_path
-            hhblits_binary_path = FLAGS.hhblits_binary_path
-            uniref90_database_path = FLAGS.uniref90_database_path
-            mgnify_database_path = FLAGS.mgnify_database_path
-            bfd_database_path = FLAGS.bfd_database_path
-            uniref30_database_path = FLAGS.uniref30_database_path
-            small_bfd_database_path = FLAGS.small_bfd_database_path
-            template_searcher = template_searcher
-            template_featurizer = template_featurizer
-            use_small_bfd = use_small_bfd
-            use_precomputed_msas = FLAGS.use_precomputed_msas
-            msa_tools_n_cpu = FLAGS.jackhmmer_n_cpu
-
-
-            input_fasta_path=fasta_path
-            msa_output_dir=msa_output_dir
-            with open(input_fasta_path) as f:
-                input_fasta_str = f.read()
-            input_seqs, input_descs = parsers.parse_fasta(input_fasta_str)
-            if len(input_seqs) != 1:
-                raise ValueError(
-                    f'More than one input sequence found in {input_fasta_path}.'
-                )
-            input_sequence = input_seqs[0]
-            input_description = input_descs[0]
-            num_res = len(input_sequence)
-
-            uniref90_out_path = os.path.join(msa_output_dir, 'uniref90_hits.sto')
-            jackhmmer_uniref90_result = run_msa_tool(
-                msa_runner=self.jackhmmer_uniref90_runner,
-                input_fasta_path=input_fasta_path,
-                msa_out_path=uniref90_out_path,
-                msa_format='sto',
-                use_precomputed_msas=self.use_precomputed_msas,
-                max_sto_sequences=self.uniref_max_hits,
-            )
-            mgnify_out_path = os.path.join(msa_output_dir, 'mgnify_hits.sto')
-            jackhmmer_mgnify_result = run_msa_tool(
-                msa_runner=self.jackhmmer_mgnify_runner,
-                input_fasta_path=input_fasta_path,
-                msa_out_path=mgnify_out_path,
-                msa_format='sto',
-                use_precomputed_msas=self.use_precomputed_msas,
-                max_sto_sequences=self.mgnify_max_hits,
-            )
-
-            msa_for_templates = jackhmmer_uniref90_result['sto']
-            msa_for_templates = parsers.deduplicate_stockholm_msa(msa_for_templates)
-            msa_for_templates = parsers.remove_empty_columns_from_stockholm_msa(
-                msa_for_templates
-            )
-
-            if self.template_searcher.input_format == 'sto':
-                pdb_templates_result = self.template_searcher.query(msa_for_templates)
-            elif self.template_searcher.input_format == 'a3m':
-                uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(msa_for_templates)
-                pdb_templates_result = self.template_searcher.query(uniref90_msa_as_a3m)
-            else:
-                raise ValueError(
-                    'Unrecognized template input format: '
-                    f'{self.template_searcher.input_format}'
-                )
-
-            pdb_hits_out_path = os.path.join(
-                msa_output_dir, f'pdb_hits.{self.template_searcher.output_format}'
-            )
-            with open(pdb_hits_out_path, 'w') as f:
-                f.write(pdb_templates_result)
-
-            uniref90_msa = parsers.parse_stockholm(jackhmmer_uniref90_result['sto'])
-            mgnify_msa = parsers.parse_stockholm(jackhmmer_mgnify_result['sto'])
-
-            pdb_template_hits = self.template_searcher.get_template_hits(
-                output_string=pdb_templates_result, input_sequence=input_sequence
-            )
-
-            if self._use_small_bfd:
-                bfd_out_path = os.path.join(msa_output_dir, 'small_bfd_hits.sto')
-                jackhmmer_small_bfd_result = run_msa_tool(
-                    msa_runner=self.jackhmmer_small_bfd_runner,
-                    input_fasta_path=input_fasta_path,
-                    msa_out_path=bfd_out_path,
-                    msa_format='sto',
-                    use_precomputed_msas=self.use_precomputed_msas,
-                )
-                bfd_msa = parsers.parse_stockholm(jackhmmer_small_bfd_result['sto'])
-            else:
-                bfd_out_path = os.path.join(msa_output_dir, 'bfd_uniref_hits.a3m')
-                hhblits_bfd_uniref_result = run_msa_tool(
-                    msa_runner=self.hhblits_bfd_uniref_runner,
-                    input_fasta_path=input_fasta_path,
-                    msa_out_path=bfd_out_path,
-                    msa_format='a3m',
-                    use_precomputed_msas=self.use_precomputed_msas,
-                )
-                bfd_msa = parsers.parse_a3m(hhblits_bfd_uniref_result['a3m'])
-
-            templates_result = self.template_featurizer.get_templates(
-                query_sequence=input_sequence, hits=pdb_template_hits
-            )
-
-            sequence_features = make_sequence_features(
-                sequence=input_sequence, description=input_description, num_res=num_res
-            )
-
-            msa_features = make_msa_features((uniref90_msa, bfd_msa, mgnify_msa))
-
-            logging.info('Uniref90 MSA size: %d sequences.', len(uniref90_msa))
-            logging.info('BFD MSA size: %d sequences.', len(bfd_msa))
-            logging.info('MGnify MSA size: %d sequences.', len(mgnify_msa))
-            logging.info(
-                'Final (deduplicated) MSA size: %d sequences.',
-                msa_features['num_alignments'][0],
-            )
-            logging.info(
-                'Total number of templates (NB: this can include bad '
-                'templates and is later filtered to top 4): %d.',
-                templates_result.features['template_domain_names'].shape[0],
-            )
-
-            feature_dict = {**sequence_features, **msa_features, **templates_result.features}
+        input_file = Path(fasta_path).stem
+        if input_file.strip() in all_accession:
+            sto_filename_prefix = "output_" + input_file
+            sto_filename = os.path.join(output_sto_root, sto_filename_prefix)
 
         else:
+            continue
+            res = find_sequence(all_huamn_protein_database_path, protein_sequence=query_sequence)
+            target_id = res["id"]
+
+            # print(find_sto_results(output_sto_root, res))
+
+            sto_filename_prefix = "output_" + target_id
+            sto_filename = os.path.join(output_sto_root, sto_filename_prefix)
+
+        if USE_a3m:
+            a3m_filename = os.path.join(output_a3m_root, sto_filename_prefix)
+        else:
+            a3m_filename = sto_filename
+
+        all_dbs = [f"{sto_filename}_on_{db}.sto"
+                   for db in all_database_exact_names]
+
+        all_a3ms = [f"{a3m_filename}_on_{db}_a3m.fasta"
+                    for db in all_database_exact_names]
+
+        #
+        # all_a3ms = [f"{a3m_filename}_on_{db}_a3m.fasta"
+        #             for db in all_database_exact_names]
+        #
+        if not run_multimer_system:
             feature_dict = data_pipeline.process(
-                input_fasta_path=fasta_path, msa_output_dir=msa_output_dir
+                input_fasta_path=fasta_path, msa_output_dir=msa_output_dir, all_dbs=all_dbs
             )
+
         timings['features'] = time.time() - t_0
 
         # Write out features as a pickled dictionary.
@@ -270,3 +182,71 @@ def main(argv):
         relaxed_pdbs = {}
         relax_metrics = {}
         ranking_confidences = {}
+
+        print(f'done for {fasta_name}, no model running needed')
+
+if __name__ == '__main__':
+
+
+    check_original = False
+
+    force_rerun_jackhmmer = False
+
+    use_msa_from_original = True
+
+    force_executor = True
+
+    DEBUG = False
+
+    Truncate = False
+
+    from Bio import SeqIO
+
+    all_huamn_protein_database_path = "all_proteins_uniprotkb_organism_id_9606_AND_reviewed_2025_10_21.fasta"
+    records = list(SeqIO.parse(all_huamn_protein_database_path, "fasta"))
+    all_ids = [record.id for record in records]
+    all_accession = [id.split("|")[1].replace(" ", "") for id in all_ids]
+
+    output_sto_root = "../af3_local/1000_2000_results_jackhmmer_on_public_dbs/sto/"
+
+    output_a3m_root = "./first_20_results_jackhmmer_on_public_dbs/a3m"
+    USE_a3m = False
+
+    all_database_exact_names = ["uniref90_2022_05", "bfd-first_non_consensus_sequences",
+                                "mgy_clusters_2022_05", "uniprot_all_2021_04"]
+
+
+
+
+    # fasta_paths = 'O15552.fasta'
+    fasta_paths = 'O14818.fasta'
+    # model_dir = Path(model_dir).absolute()
+    model_dir = '../alphafold_models'
+    new_argv = sys.argv[:]
+    db_dir = Path('/scratch/project_465001728/uniprot_test/deep_mind_dataset').absolute()
+    output_dir = "../output_sb"
+
+    if not any(a.startswith("--fasta_paths=") for a in new_argv):
+        new_argv.append(f"--fasta_paths={fasta_paths}")
+
+    if not any(a.startswith("--max_template_date=") for a in new_argv):
+        new_argv.append(f"--max_template_date=2020-05-14")
+
+    if not any(a.startswith("--model_preset=") for a in new_argv):
+        new_argv.append(f"--model_preset=monomer")
+
+    if not any(a.startswith("--db_preset=") for a in new_argv):
+        new_argv.append(f"--db_preset=reduced_dbs")
+
+    if not any(a.startswith("--data_dir=") for a in new_argv):
+        new_argv.append(f"--data_dir={db_dir}")
+    #
+    # if not any(a.startswith("--db_dir=") for a in new_argv):
+    #     new_argv.append(f"--db_dir={db_dir}")
+
+    if not any(a.startswith("--output_dir=") for a in new_argv):
+        new_argv.append(f"--output_dir={output_dir}")
+
+    sys.argv = new_argv
+
+    app.run(main)
