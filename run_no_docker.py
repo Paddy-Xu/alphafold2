@@ -338,13 +338,13 @@ if __name__ == '__main__':
   from pathlib import Path
   from absl import app, flags
 
-  fasta_paths = '../O15552.fasta'
+  fasta_paths = 'O15552.fasta'
 
 
   # model_dir = Path(model_dir).absolute()
   model_dir = '../alphafold_models'
   new_argv = sys.argv[:]
-  db_dir = Path('../uniprot_test/all_databases/public_databases').absolute()
+  db_dir = Path('/scratch/project_465001728/uniprot_test/deep_mind_dataset').absolute()
   output_dir = "../output_sb"
 
   if not any(a.startswith("--fasta_paths=") for a in new_argv):
@@ -360,7 +360,7 @@ if __name__ == '__main__':
       new_argv.append(f"--db_preset=reduced_dbs")
 
   if not any(a.startswith("--data_dir=") for a in new_argv):
-      new_argv.append(f"--data_dir=dataset")
+      new_argv.append(f"--data_dir={db_dir}")
   #
   # if not any(a.startswith("--db_dir=") for a in new_argv):
   #     new_argv.append(f"--db_dir={db_dir}")

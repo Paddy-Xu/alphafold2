@@ -2,13 +2,65 @@
 git clone --branch v3.3.0 --single-branch https://github.com/soedinglab/hh-suite.git  hh-suite \
     && mkdir  hh-suite/build \
     && pushd  hh-suite/build \
-    && cmake  -DCMAKE_POLICY_VERSION_MINIMUM=3.5  -DCMAKE_INSTALL_PREFIX=hhsuite .. \
+    && cmake  -DCMAKE_POLICY_VERSION_MINIMUM=3.5  \
+     -DCMAKE_INSTALL_PREFIX="$PWD/../install" \
+     -DCMAKE_C_COMPILER=$(which gcc) .. \
     &&  make -j &&  make install \
+
+    # Make the hhsuite binary available in your PATH
+# add the following line to your ~/.bashrc !!!!!!!!!!!!!!
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    export HHSUITE_ROOT=/scratch/project_465001728/hh-suite/install
+    export PATH="$HHSUITE_ROOT/bin:$PATH"
+    
     && sudo ln -s /opt/hhsuite/bin/* /usr/local/bin/ \
     && popd \
-    && rm -rf /tmp/hh-suite
+    && rm -rf hh-suite
 
 
+For LUMI:L
+# Install dependencies
+brew install cmake
+
+# For OpenMP support (recommended)
+brew install libomp
+
+## Install kalign
+
+note that for LUMI, kalign needs to be installed avoiding cray compiler wrappers
+1. Get out of the Cray environment
+ 
+module purge
+module load gcc
+ 
+
+# Clone and build
+git clone https://github.com/TimoLassmann/kalign.git
+cd kalign
+mkdir build && cd build
+# cmake ..
+mkdir -p install
+cmake .. -DCMAKE_INSTALL_PREFIX="$PWD/../install" -DCMAKE_C_COMPILER=$(which gcc)
+make
+make test
+make install
+
+check ldd /scratch/project_465001728/kalign/install_nocray/bin/kalign
+: this output should not contain libsci_cray_* or libxpmem. You should only see standard things like libm.so, libc.so, maybe libgomp.so, etc.
+
+
+# Make the kalign binary available in your PATH
+# add the following line to your ~/.bashrc !!!!!!!!!!!!!!
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+export PATH="/scratch/project_465001728/kalign/install/bin:$PATH"
+export LD_LIBRARY_PATH="/scratch/project_465001728/kalign/install/lib64:$LD_LIBRARY_PATH"
+export KALIGN_PREFIX=/scratch/project_465001728/kalign/install
+
+Note that cmake need install prefix to a local directory 
+Note that kalign and jackhmmer need to be installed separately.
+jackhmmer is installed before 
+
+For MacOS:
 
 brew install kalign
 brew install jackhmmer
