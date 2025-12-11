@@ -15,6 +15,11 @@
 """Docker launch script for Alphafold docker image."""
 
 import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
+import tensorflow as tf  # import AFTER setting the env var
+
+
 import pathlib
 import signal
 from typing import Tuple
