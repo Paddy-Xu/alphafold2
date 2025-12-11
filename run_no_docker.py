@@ -163,10 +163,8 @@ _ROOT_MOUNT_DIRECTORY = 'output'
 #   return mount, str(mounted_path)
 
 
-def main(argv):
-  if len(argv) > 1:
-    raise app.UsageError('Too many command-line arguments.')
-
+def configure_run_alphafold_flags():
+  """Populate FLAGS as if the docker launcher had been run."""
   # You can individually override the following paths if you have placed the
   # data in locations other than the FLAGS.data_dir.
 
@@ -273,7 +271,6 @@ def main(argv):
 
   use_gpu_relax = FLAGS.enable_gpu_relax and FLAGS.use_gpu
 
-
   command_args.extend([
       f'--output_dir={output_target_path}',
       f'--max_template_date={FLAGS.max_template_date}',
@@ -293,6 +290,14 @@ def main(argv):
       key = key.replace('--','')
       setattr(FLAGS, key, value)
 
+  return command_args
+
+
+def main(argv):
+  if len(argv) > 1:
+    raise app.UsageError('Too many command-line arguments.')
+
+  configure_run_alphafold_flags()
 
   print("ok")
 
@@ -375,6 +380,5 @@ if __name__ == '__main__':
   sys.argv = new_argv
 
   app.run(main)
-
 
 

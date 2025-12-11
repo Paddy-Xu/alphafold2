@@ -3,12 +3,17 @@ from alphafold.data.pipeline import *
 from alphafold.data.pipeline_pre_run import DataPipelineNew
 from pathlib import Path
 
+from run_no_docker import configure_run_alphafold_flags
+
 
 
 
 def main(argv):
     if len(argv) > 1:
         raise app.UsageError('Too many command-line arguments.')
+    
+    configure_run_alphafold_flags()
+
     run_multimer_system = 'multimer' in FLAGS.model_preset
     model_type = 'Multimer' if run_multimer_system else 'Monomer'
 
@@ -161,6 +166,14 @@ def main(argv):
         all_a3ms = [f"{a3m_filename}_on_{db}_a3m.fasta"
                     for db in all_database_exact_names]
 
+        all_dbs = [Path(i).absolute() for i in all_dbs]
+        all_a3ms = [Path(i).absolute() for i in all_a3ms]
+
+        if USE_a3m:
+            assert all([os.path.exists(i) for i in all_a3ms]), f"some a3m files not found on {all_a3ms}"      
+        else:
+            assert all([os.path.exists(i) for i in all_dbs]), f"some sto files not found on {all_dbs}"
+
         #
         # all_a3ms = [f"{a3m_filename}_on_{db}_a3m.fasta"
         #             for db in all_database_exact_names]
@@ -207,7 +220,7 @@ if __name__ == '__main__':
     all_ids = [record.id for record in records]
     all_accession = [id.split("|")[1].replace(" ", "") for id in all_ids]
 
-    output_sto_root = "../af3_local/1000_2000_results_jackhmmer_on_public_dbs/sto/"
+    output_sto_root = "../af3_self/1000_2000_results_jackhmmer_on_public_dbs/sto/"
 
     output_a3m_root = "./first_20_results_jackhmmer_on_public_dbs/a3m"
     USE_a3m = False

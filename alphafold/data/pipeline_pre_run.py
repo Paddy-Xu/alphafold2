@@ -1,6 +1,6 @@
-from pipeline import *
+from alphafold.data.pipeline import *
 
-class DataPipelineNew:
+class DataPipelineNew(DataPipeline):
     """Runs the alignment tools and assembles the input features."""
 
     def __init__(
@@ -24,25 +24,25 @@ class DataPipelineNew:
 
         # uniref90_out_path = os.path.join(msa_output_dir, 'uniref90_hits.sto')
         for path in all_dbs:
-            if "uniref90" in path:
+            if "uniref90" in path.stem:
                 uniref90_out_path = path
-            elif "mgnify" in path:
+            elif "mgy" in path.stem or "mgnify" in path.stem:
                 mgnify_out_path = path
-            elif "bfd" in path:
+            elif "bfd" in path.stem:
                 if self._use_small_bfd:
                     bfd_out_path = path
                 else:
                     raise ValueError("ful bfd database not supported yet")
             else:
-                assert "uniprot" in path
+                assert "uniprot" in path.stem
                 uniprot_out_path = path
-
+        # breakpoint()
         jackhmmer_uniref90_result = run_msa_tool(
             msa_runner=self.jackhmmer_uniref90_runner,
             input_fasta_path=input_fasta_path,
             msa_out_path=uniref90_out_path,
             msa_format='sto',
-            use_precomputed_msas=self.use_precomputed_msas,
+            use_precomputed_msas=True,
             max_sto_sequences=self.uniref_max_hits,
         )
         # mgnify_out_path = os.path.join(msa_output_dir, 'mgnify_hits.sto')
@@ -52,7 +52,7 @@ class DataPipelineNew:
             input_fasta_path=input_fasta_path,
             msa_out_path=mgnify_out_path,
             msa_format='sto',
-            use_precomputed_msas=self.use_precomputed_msas,
+            use_precomputed_msas=True,
             max_sto_sequences=self.mgnify_max_hits,
         )
 
@@ -93,7 +93,7 @@ class DataPipelineNew:
                 input_fasta_path=input_fasta_path,
                 msa_out_path=bfd_out_path,
                 msa_format='sto',
-                use_precomputed_msas=self.use_precomputed_msas,
+                use_precomputed_msas=True,
             )
             bfd_msa = parsers.parse_stockholm(jackhmmer_small_bfd_result['sto'])
         else:
@@ -104,7 +104,7 @@ class DataPipelineNew:
                 input_fasta_path=input_fasta_path,
                 msa_out_path=bfd_out_path,
                 msa_format='a3m',
-                use_precomputed_msas=self.use_precomputed_msas,
+                use_precomputed_msas=True,
             )
             bfd_msa = parsers.parse_a3m(hhblits_bfd_uniref_result['a3m'])
 
