@@ -18,7 +18,8 @@ import os
 import pathlib
 import signal
 from typing import Tuple
-
+import sys
+from pathlib import Path
 from absl import app
 from absl import flags
 from absl import logging
@@ -334,9 +335,7 @@ if __name__ == '__main__':
       'max_template_date',
   ])
 
-  import sys
-  from pathlib import Path
-  from absl import app, flags
+
 
   fasta_paths = 'O15552.fasta'
 
