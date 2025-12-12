@@ -279,16 +279,24 @@ def configure_run_alphafold_flags():
       f'--benchmark={FLAGS.benchmark}',
       f'--use_precomputed_msas={FLAGS.use_precomputed_msas}',
       f'--num_multimer_predictions_per_model={FLAGS.num_multimer_predictions_per_model}',
-      f'--models_to_relax={FLAGS.models_to_relax}',
+      # f'--models_to_relax={FLAGS.models_to_relax}',
       f'--use_gpu_relax={use_gpu_relax}',
       # '--logtostderr',
   ])
 
-  for i in command_args:
-      key = i.split('=')[0]
-      value = i.split('=')[1]
-      key = key.replace('--','')
-      setattr(FLAGS, key, value)
+
+  for arg in command_args:
+    if not arg.startswith('--') or '=' not in arg:
+      continue
+    name, value = arg[2:].split('=', 1)
+    if name in FLAGS:
+      FLAGS[name].parse(value)
+
+  # for i in command_args:
+  #     key = i.split('=')[0]
+  #     value = i.split('=')[1]
+  #     key = key.replace('--','')
+  #     setattr(FLAGS, key, value)
 
   return command_args
 
