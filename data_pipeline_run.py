@@ -1,6 +1,6 @@
 from run_alphafold import *
 from alphafold.data.pipeline import *
-from alphafold.data.pipeline_pre_run import DataPipelineNew
+from alphafold.data.pipeline_pre_run import DataPipelineNew, DataPipelineMultimerNew
 from pathlib import Path
 
 from run_no_docker import configure_run_alphafold_flags
@@ -75,7 +75,14 @@ def main(argv):
 
     if run_multimer_system:
         num_predictions_per_model = FLAGS.num_multimer_predictions_per_model
-        data_pipeline = pipeline_multimer.DataPipeline(
+        # data_pipeline = pipeline_multimer.DataPipeline(
+        #     monomer_data_pipeline=monomer_data_pipeline,
+        #     jackhmmer_binary_path=FLAGS.jackhmmer_binary_path,
+        #     uniprot_database_path=FLAGS.uniprot_database_path,
+        #     use_precomputed_msas=FLAGS.use_precomputed_msas,
+        #     jackhmmer_n_cpu=FLAGS.jackhmmer_n_cpu,
+        # )
+        data_pipeline = DataPipelineMultimerNew(
             monomer_data_pipeline=monomer_data_pipeline,
             jackhmmer_binary_path=FLAGS.jackhmmer_binary_path,
             uniprot_database_path=FLAGS.uniprot_database_path,
@@ -217,12 +224,14 @@ if __name__ == '__main__':
     output_sto_root = "../af3_self/1000_2000_results_jackhmmer_on_public_dbs/sto/"
 
     output_a3m_root = "../af3_self/1000_2000_results_jackhmmer_on_public_dbs/a3m/"
-    USE_a3m = True
+
+    USE_a3m = False
+
+    # model_preset = 'monomer'
+    model_preset = 'multimer'
 
     all_database_exact_names = ["uniref90_2022_05", "bfd-first_non_consensus_sequences",
                                 "mgy_clusters_2022_05", "uniprot_all_2021_04"]
-
-
 
 
     # fasta_paths = 'O15552.fasta'
@@ -240,7 +249,7 @@ if __name__ == '__main__':
         new_argv.append(f"--max_template_date=2020-05-14")
 
     if not any(a.startswith("--model_preset=") for a in new_argv):
-        new_argv.append(f"--model_preset=monomer")
+        new_argv.append(f"--model_preset={model_preset}")
 
     if not any(a.startswith("--db_preset=") for a in new_argv):
         new_argv.append(f"--db_preset=reduced_dbs")
