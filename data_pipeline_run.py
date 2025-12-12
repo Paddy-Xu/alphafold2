@@ -157,7 +157,7 @@ def main(argv):
 
         if USE_a3m:
             a3m_filename = os.path.join(output_a3m_root, sto_filename_prefix)
-            all_dbs = [f"{a3m_filename}_on_{db}_a3m.fasta"
+            all_dbs = [f"{a3m_filename}_on_{db}_a3m.a3m"
                         for db in all_database_exact_names]
         else:
             all_dbs = [f"{sto_filename}_on_{db}.sto"
