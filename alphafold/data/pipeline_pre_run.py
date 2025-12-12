@@ -40,12 +40,26 @@ class DataPipelineNew(pipeline.DataPipeline):
             else:
                 assert "uniprot" in path.stem
                 uniprot_out_path = path
+
+        if 'sto' in uniref90_out_path.suffix:
+            msa_format = 'sto'
+        else:
+            assert 'a3m' in uniref90_out_path.suffix
+            msa_format = 'a3m'
+
+        print('msa format = ', msa_format, '')
+        print('msa_output_dir = ', msa_output_dir, '')
+
+        pdb_hits_out_path = os.path.join(
+            msa_output_dir, f'pdb_hits.{self.template_searcher.output_format}'
+        )
+
         # breakpoint()
         jackhmmer_uniref90_result = run_msa_tool(
             msa_runner=self.jackhmmer_uniref90_runner,
             input_fasta_path=input_fasta_path,
             msa_out_path=uniref90_out_path,
-            msa_format='sto',
+            msa_format=msa_format,
             use_precomputed_msas=True,
             max_sto_sequences=self.uniref_max_hits,
         )
@@ -55,12 +69,12 @@ class DataPipelineNew(pipeline.DataPipeline):
             msa_runner=self.jackhmmer_mgnify_runner,
             input_fasta_path=input_fasta_path,
             msa_out_path=mgnify_out_path,
-            msa_format='sto',
+            msa_format=msa_format,
             use_precomputed_msas=True,
             max_sto_sequences=self.mgnify_max_hits,
         )
 
-        msa_for_templates = jackhmmer_uniref90_result['sto']
+        msa_for_templates = jackhmmer_uniref90_result[msa_format]
         msa_for_templates = parsers.deduplicate_stockholm_msa(msa_for_templates)
         msa_for_templates = parsers.remove_empty_columns_from_stockholm_msa(
             msa_for_templates
@@ -77,14 +91,11 @@ class DataPipelineNew(pipeline.DataPipeline):
                 f'{self.template_searcher.input_format}'
             )
 
-        pdb_hits_out_path = os.path.join(
-            msa_output_dir, f'pdb_hits.{self.template_searcher.output_format}'
-        )
         with open(pdb_hits_out_path, 'w') as f:
             f.write(pdb_templates_result)
 
-        uniref90_msa = parsers.parse_stockholm(jackhmmer_uniref90_result['sto'])
-        mgnify_msa = parsers.parse_stockholm(jackhmmer_mgnify_result['sto'])
+        uniref90_msa = parsers.parse_stockholm(jackhmmer_uniref90_result[msa_format])
+        mgnify_msa = parsers.parse_stockholm(jackhmmer_mgnify_result[msa_format])
 
         pdb_template_hits = self.template_searcher.get_template_hits(
             output_string=pdb_templates_result, input_sequence=input_sequence
@@ -96,10 +107,10 @@ class DataPipelineNew(pipeline.DataPipeline):
                 msa_runner=self.jackhmmer_small_bfd_runner,
                 input_fasta_path=input_fasta_path,
                 msa_out_path=bfd_out_path,
-                msa_format='sto',
+                msa_format=msa_format,
                 use_precomputed_msas=True,
             )
-            bfd_msa = parsers.parse_stockholm(jackhmmer_small_bfd_result['sto'])
+            bfd_msa = parsers.parse_stockholm(jackhmmer_small_bfd_result[msa_format])
         else:
             raise ValueError("ful bfd database not supported yet")
             # bfd_out_path = os.path.join(msa_output_dir, 'bfd_uniref_hits.a3m')

@@ -157,27 +157,21 @@ def main(argv):
 
         if USE_a3m:
             a3m_filename = os.path.join(output_a3m_root, sto_filename_prefix)
+            all_dbs = [f"{a3m_filename}_on_{db}_a3m.fasta"
+                        for db in all_database_exact_names]
         else:
-            a3m_filename = sto_filename
+            all_dbs = [f"{sto_filename}_on_{db}.sto"
+                       for db in all_database_exact_names]
 
-        all_dbs = [f"{sto_filename}_on_{db}.sto"
-                   for db in all_database_exact_names]
-
-        all_a3ms = [f"{a3m_filename}_on_{db}_a3m.fasta"
-                    for db in all_database_exact_names]
 
         all_dbs = [Path(i).absolute() for i in all_dbs]
-        all_a3ms = [Path(i).absolute() for i in all_a3ms]
 
         if USE_a3m:
-            assert all([os.path.exists(i) for i in all_a3ms]), f"some a3m files not found on {all_a3ms}"      
+            assert all([os.path.exists(i) for i in all_dbs]), f"some a3m files not found on {all_dbs}"
         else:
             assert all([os.path.exists(i) for i in all_dbs]), f"some sto files not found on {all_dbs}"
 
-        #
-        # all_a3ms = [f"{a3m_filename}_on_{db}_a3m.fasta"
-        #             for db in all_database_exact_names]
-        #
+
 
         feature_dict = data_pipeline.process(
             input_fasta_path=fasta_path, msa_output_dir=msa_output_dir, all_dbs=all_dbs
@@ -222,8 +216,8 @@ if __name__ == '__main__':
 
     output_sto_root = "../af3_self/1000_2000_results_jackhmmer_on_public_dbs/sto/"
 
-    output_a3m_root = "./first_20_results_jackhmmer_on_public_dbs/a3m"
-    USE_a3m = False
+    output_a3m_root = "../af3_self/1000_2000_results_jackhmmer_on_public_dbs/a3m/"
+    USE_a3m = True
 
     all_database_exact_names = ["uniref90_2022_05", "bfd-first_non_consensus_sequences",
                                 "mgy_clusters_2022_05", "uniprot_all_2021_04"]
