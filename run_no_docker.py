@@ -266,13 +266,13 @@ def configure_run_alphafold_flags():
       # command_args.append(f'--{name}={target_path}')
       command_args.append(f'--{name}={path}')
 
-  output_target_path = os.path.join(_ROOT_MOUNT_DIRECTORY, 'output')
+  # output_target_path = os.path.join(_ROOT_MOUNT_DIRECTORY, 'output')
   # mounts.append(types.Mount(output_target_path, FLAGS.output_dir, type='bind'))
 
   use_gpu_relax = FLAGS.enable_gpu_relax and FLAGS.use_gpu
 
   command_args.extend([
-      f'--output_dir={output_target_path}',
+      f'--output_dir={FLAGS.output_dir}',
       f'--max_template_date={FLAGS.max_template_date}',
       f'--db_preset={FLAGS.db_preset}',
       f'--model_preset={FLAGS.model_preset}',

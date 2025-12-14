@@ -120,14 +120,13 @@ def main(argv):
     #     max_outer_iterations=RELAX_MAX_OUTER_ITERATIONS,
     #     use_gpu=FLAGS.use_gpu_relax,
     # )
-
-    random_seed = FLAGS.random_seed
+    #
+    # random_seed = FLAGS.random_seed
     # if random_seed is None:
-    #     random_seed = random.randrange(sys.maxsize // len(model_runners))
-    logging.info('Using random seed %d for the data pipeline', random_seed)
+    #     random_seed = random.randrange(sys.maxsize // 11)
+    # logging.info('Using random seed %d for the data pipeline', random_seed)
 
-    logging.info('result will be saved to ', FLAGS.output_dir)
-
+    logging.info(f'result will be saved to {FLAGS.output_dir}')
 
     # Predict structure for each of the sequences.
     for i, fasta_path in enumerate(FLAGS.fasta_paths):

@@ -258,11 +258,13 @@ class DataPipeline:
         query_sequence=input_sequence, hits=pdb_template_hits
     )
 
+
+    msa_features = make_msa_features((uniref90_msa, bfd_msa, mgnify_msa))
+
+
     sequence_features = make_sequence_features(
         sequence=input_sequence, description=input_description, num_res=num_res
     )
-
-    msa_features = make_msa_features((uniref90_msa, bfd_msa, mgnify_msa))
 
     logging.info('Uniref90 MSA size: %d sequences.', len(uniref90_msa))
     logging.info('BFD MSA size: %d sequences.', len(bfd_msa))
