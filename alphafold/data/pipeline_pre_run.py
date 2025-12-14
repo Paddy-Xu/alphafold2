@@ -74,28 +74,31 @@ class DataPipelineNew(pipeline.DataPipeline):
             max_sto_sequences=self.mgnify_max_hits,
         )
 
-        msa_for_templates = jackhmmer_uniref90_result[msa_format]
-        msa_for_templates = parsers.deduplicate_stockholm_msa(msa_for_templates)
-        msa_for_templates = parsers.remove_empty_columns_from_stockholm_msa(
-            msa_for_templates
-        )
+        if os.path.exists(pdb_hits_out_path):
+            print(f'pdb_hits_out_path exists at {pdb_hits_out_path}, reading from it')
+            with open(pdb_hits_out_path, 'r') as f:
+                pdb_templates_result = f.read()
 
-        if self.template_searcher.input_format == 'sto':
-            pdb_templates_result = self.template_searcher.query(msa_for_templates)
-        elif self.template_searcher.input_format == 'a3m':
-            uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(msa_for_templates)
-            pdb_templates_result = self.template_searcher.query(uniref90_msa_as_a3m)
         else:
-            raise ValueError(
-                'Unrecognized template input format: '
-                f'{self.template_searcher.input_format}'
+            msa_for_templates = jackhmmer_uniref90_result[msa_format]
+            msa_for_templates = parsers.deduplicate_stockholm_msa(msa_for_templates)
+            msa_for_templates = parsers.remove_empty_columns_from_stockholm_msa(
+                msa_for_templates
             )
 
-        with open(pdb_hits_out_path, 'w') as f:
-            f.write(pdb_templates_result)
+            if self.template_searcher.input_format == 'sto':
+                pdb_templates_result = self.template_searcher.query(msa_for_templates)
+            elif self.template_searcher.input_format == 'a3m':
+                uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(msa_for_templates)
+                pdb_templates_result = self.template_searcher.query(uniref90_msa_as_a3m)
+            else:
+                raise ValueError(
+                    'Unrecognized template input format: '
+                    f'{self.template_searcher.input_format}'
+                )
 
-        uniref90_msa = parsers.parse_stockholm(jackhmmer_uniref90_result[msa_format])
-        mgnify_msa = parsers.parse_stockholm(jackhmmer_mgnify_result[msa_format])
+            with open(pdb_hits_out_path, 'w') as f:
+                f.write(pdb_templates_result)
 
         pdb_template_hits = self.template_searcher.get_template_hits(
             output_string=pdb_templates_result, input_sequence=input_sequence
@@ -122,6 +125,9 @@ class DataPipelineNew(pipeline.DataPipeline):
                 use_precomputed_msas=True,
             )
             bfd_msa = parsers.parse_a3m(hhblits_bfd_uniref_result['a3m'])
+        uniref90_msa = parsers.parse_stockholm(jackhmmer_uniref90_result[msa_format])
+        mgnify_msa = parsers.parse_stockholm(jackhmmer_mgnify_result[msa_format])
+
 
         templates_result = self.template_featurizer.get_templates(
             query_sequence=input_sequence, hits=pdb_template_hits
@@ -130,6 +136,8 @@ class DataPipelineNew(pipeline.DataPipeline):
         sequence_features = make_sequence_features(
             sequence=input_sequence, description=input_description, num_res=num_res
         )
+
+
 
         msa_features = make_msa_features((uniref90_msa, bfd_msa, mgnify_msa))
 
@@ -258,6 +266,7 @@ class DataPipelineMultimerNew(pipeline_multimer.DataPipeline):
                 is_homomer_or_monomer=is_homomer_or_monomer,
 
                 all_dbs=all_dbs
+
             )
 
 

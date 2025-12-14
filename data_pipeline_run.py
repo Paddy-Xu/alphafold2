@@ -112,19 +112,22 @@ def main(argv):
     #     'Have %d models: %s', len(model_runners), list(model_runners.keys())
     # )
 
-    amber_relaxer = relax.AmberRelaxation(
-        max_iterations=RELAX_MAX_ITERATIONS,
-        tolerance=RELAX_ENERGY_TOLERANCE,
-        stiffness=RELAX_STIFFNESS,
-        exclude_residues=RELAX_EXCLUDE_RESIDUES,
-        max_outer_iterations=RELAX_MAX_OUTER_ITERATIONS,
-        use_gpu=FLAGS.use_gpu_relax,
-    )
+    # amber_relaxer = relax.AmberRelaxation(
+    #     max_iterations=RELAX_MAX_ITERATIONS,
+    #     tolerance=RELAX_ENERGY_TOLERANCE,
+    #     stiffness=RELAX_STIFFNESS,
+    #     exclude_residues=RELAX_EXCLUDE_RESIDUES,
+    #     max_outer_iterations=RELAX_MAX_OUTER_ITERATIONS,
+    #     use_gpu=FLAGS.use_gpu_relax,
+    # )
 
     random_seed = FLAGS.random_seed
     # if random_seed is None:
     #     random_seed = random.randrange(sys.maxsize // len(model_runners))
     logging.info('Using random seed %d for the data pipeline', random_seed)
+
+    logging.info('result will be saved to ', FLAGS.output_dir)
+
 
     # Predict structure for each of the sequences.
     for i, fasta_path in enumerate(FLAGS.fasta_paths):
@@ -191,11 +194,11 @@ def main(argv):
         with open(features_output_path, 'wb') as f:
             pickle.dump(feature_dict, f, protocol=4)
 
-        unrelaxed_pdbs = {}
-        unrelaxed_proteins = {}
-        relaxed_pdbs = {}
-        relax_metrics = {}
-        ranking_confidences = {}
+        # unrelaxed_pdbs = {}
+        # unrelaxed_proteins = {}
+        # relaxed_pdbs = {}
+        # relax_metrics = {}
+        # ranking_confidences = {}
 
         print(f'done for {fasta_name}, no model running needed')
 
@@ -240,7 +243,7 @@ if __name__ == '__main__':
     model_dir = '../alphafold_models'
     new_argv = sys.argv[:]
     db_dir = Path('/scratch/project_465001728/uniprot_test/deep_mind_dataset').absolute()
-    output_dir = "../output_sb"
+    output_dir = "output_sb"
 
     if not any(a.startswith("--fasta_paths=") for a in new_argv):
         new_argv.append(f"--fasta_paths={fasta_paths}")
