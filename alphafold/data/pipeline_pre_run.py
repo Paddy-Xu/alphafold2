@@ -100,9 +100,6 @@ class DataPipelineNew(pipeline.DataPipeline):
             with open(pdb_hits_out_path, 'w') as f:
                 f.write(pdb_templates_result)
 
-        pdb_template_hits = self.template_searcher.get_template_hits(
-            output_string=pdb_templates_result, input_sequence=input_sequence
-        )
 
         if self._use_small_bfd:
             # bfd_out_path = os.path.join(msa_output_dir, 'small_bfd_hits.sto')
@@ -129,9 +126,29 @@ class DataPipelineNew(pipeline.DataPipeline):
         mgnify_msa = parsers.parse_stockholm(jackhmmer_mgnify_result[msa_format])
 
 
-        templates_result = self.template_featurizer.get_templates(
-            query_sequence=input_sequence, hits=pdb_template_hits
+        # templates_result -> TemplateSearchResult => a dataclass object
+
+        templates_result_out_path = os.path.join(
+            msa_output_dir, f'templates_result.pkl'
         )
+
+        import pickle
+        if os.path.exists(templates_result_out_path):
+            print(f'templates_result_out_path exists at {templates_result_out_path}, reading from it')
+            with open(templates_result_out_path, 'rb') as f:
+                templates_result = pickle.load(f)
+        else:
+            pdb_template_hits = self.template_searcher.get_template_hits(
+                output_string=pdb_templates_result, input_sequence=input_sequence
+            )
+
+            templates_result = self.template_featurizer.get_templates(
+                query_sequence=input_sequence, hits=pdb_template_hits
+            )
+        with open(templates_result_out_path, 'wb') as f:
+            pickle.dump(templates_result, f, protocol=4)
+
+
 
         sequence_features = make_sequence_features(
             sequence=input_sequence, description=input_description, num_res=num_res
