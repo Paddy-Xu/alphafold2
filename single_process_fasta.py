@@ -151,7 +151,9 @@ def main(argv, msa_list: list[pathlib.Path], tbl_list: list[pathlib.Path], dom_l
     run_multimer_system = 'multimer' in FLAGS.model_preset
 
     use_small_bfd = FLAGS.db_preset == 'reduced_dbs'
+
     # Simplify: this script now supports exactly one input FASTA.
+
     if isinstance(FLAGS.fasta_paths, list):
         if len(FLAGS.fasta_paths) != 1:
             raise ValueError('Provide exactly one FASTA path.')
@@ -265,20 +267,18 @@ if __name__ == '__main__':
     all_ids = [record.id for record in records]
     all_accession = [id.split("|")[1].replace(" ", "") for id in all_ids]
 
-    root = "../../../../data"
     root = "../../data"
 
     # root = "../../../all_msa/backup/"
     output_a3m_root = None
     output_sto_root = f'{root}/random_1000_inputs_results_jackhmmer_on_public_dbs/zstd_sto'
 
-
     USE_a3m = False
 
     # model_preset = 'monomer'
     model_preset = 'multimer'
 
-    fasta_paths = 'O15552.fasta'
+    fasta_paths = 'A0A0B4J1U3.fasta'
     # fasta_paths = 'O14818.fasta'
     # model_dir = Path(model_dir).absolute()
 
