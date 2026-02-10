@@ -3,7 +3,6 @@ from run_alphafold import *
 from run_alphafold import _jnp_to_np, _save_confidence_json_file, _save_mmcif_file, _save_pae_json_file
 
 from alphafold.data.pipeline import *
-from alphafold.data.pipeline_pre_run import DataPipelineNew
 from pathlib import Path
 
 from run_no_docker import configure_run_alphafold_flags

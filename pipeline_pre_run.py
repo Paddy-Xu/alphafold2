@@ -234,6 +234,7 @@ class DataPipelineMultimerNew(pipeline_multimer.DataPipeline):
             logging.info(
                 'Running monomer pipeline on chain %s: %s', chain_id, description
             )
+
             chain_features = self._monomer_data_pipeline.process(
                 input_fasta_path=chain_fasta_path, msa_output_dir=chain_msa_output_dir, all_dbs=all_dbs
             )
@@ -275,6 +276,7 @@ class DataPipelineMultimerNew(pipeline_multimer.DataPipeline):
                     sequence_features[fasta_chain.sequence]
                 )
                 continue
+
             chain_features = self._process_single_chain(
                 chain_id=chain_id,
                 sequence=fasta_chain.sequence,

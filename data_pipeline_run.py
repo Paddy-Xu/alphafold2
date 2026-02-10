@@ -1,6 +1,6 @@
 from run_alphafold import *
 from alphafold.data.pipeline import *
-from alphafold.data.pipeline_pre_run import DataPipelineNew, DataPipelineMultimerNew
+from pipeline_pre_run import DataPipelineNew, DataPipelineMultimerNew
 from pathlib import Path
 
 from run_no_docker import configure_run_alphafold_flags
@@ -15,7 +15,7 @@ def main(argv):
     configure_run_alphafold_flags()
 
     run_multimer_system = 'multimer' in FLAGS.model_preset
-    model_type = 'Multimer' if run_multimer_system else 'Monomer'
+
 
     use_small_bfd = FLAGS.db_preset == 'reduced_dbs'
     if FLAGS.model_preset == 'monomer_casp14':
@@ -28,6 +28,7 @@ def main(argv):
 
     if len(fasta_names) != len(set(fasta_names)):
         raise ValueError('All FASTA paths must have a unique basename.')
+
     if run_multimer_system:
         template_searcher = hmmsearch.Hmmsearch(
             binary_path=FLAGS.hmmsearch_binary_path,
@@ -129,14 +130,12 @@ def main(argv):
     logging.info(f'result will be saved to {FLAGS.output_dir}')
 
     # Predict structure for each of the sequences.
-    for i, fasta_path in enumerate(FLAGS.fasta_paths):
-        fasta_name = fasta_names[i]
+    for fasta_path in FLAGS.fasta_paths:
 
-        fasta_path=fasta_path
-        fasta_name=fasta_name
+        fasta_name = pathlib.Path(fasta_path).stem
+
         output_dir_base=FLAGS.output_dir
 
-        # model_runners=model_runners
         # amber_relaxer=amber_relaxer
 
         timings = {}
@@ -155,12 +154,10 @@ def main(argv):
             sto_filename = os.path.join(output_sto_root, sto_filename_prefix)
 
         else:
-            continue
+            raise Exception(" input sequence not found in human protein database, please check the fasta file and make sure the sequence is correct and the fasta header is in the format of >sp|accession|entry_name")
+            # continue
             res = find_sequence(all_huamn_protein_database_path, protein_sequence=query_sequence)
             target_id = res["id"]
-
-            # print(find_sto_results(output_sto_root, res))
-
             sto_filename_prefix = "output_" + target_id
             sto_filename = os.path.join(output_sto_root, sto_filename_prefix)
 
@@ -179,8 +176,6 @@ def main(argv):
             assert all([os.path.exists(i) for i in all_dbs]), f"some a3m files not found on {all_dbs}"
         else:
             assert all([os.path.exists(i) for i in all_dbs]), f"some sto files not found on {all_dbs}"
-
-
 
         feature_dict = data_pipeline.process(
             input_fasta_path=fasta_path, msa_output_dir=msa_output_dir, all_dbs=all_dbs
