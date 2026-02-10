@@ -242,9 +242,30 @@ class DataPipelineMultimerNew(pipeline_multimer.DataPipeline):
 
     def __init__(
             self,
-            *args, **kwargs
+            monomer_data_pipeline: pipeline.DataPipeline,
+            *,
+            jackhmmer_binary_path: str,
+            uniprot_database_path: str,
+            max_uniprot_hits: int = 50000,
+            use_precomputed_msas: bool = False,
+            jackhmmer_n_cpu: int = 8,
     ):
-        super().__init__(*args, **kwargs)
+        """Initializes the data pipeline.
+
+        Args:
+          monomer_data_pipeline: An instance of pipeline.DataPipeline - that runs
+            the data pipeline for the monomer AlphaFold system.
+          jackhmmer_binary_path: Location of the jackhmmer binary.
+          uniprot_database_path: Location of the unclustered uniprot sequences, that
+            will be searched with jackhmmer and used for MSA pairing.
+          max_uniprot_hits: The maximum number of hits to return from uniprot.
+          use_precomputed_msas: Whether to use pre-existing MSAs; see run_alphafold.
+          jackhmmer_n_cpu: Number of CPUs to use for Jackhmmer.
+        """
+        self._monomer_data_pipeline = monomer_data_pipeline
+        self._uniprot_msa_runner = None
+        self._max_uniprot_hits = max_uniprot_hits
+        self.use_precomputed_msas = use_precomputed_msas
 
     def _process_single_chain(
             self,
