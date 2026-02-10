@@ -283,7 +283,7 @@ if __name__ == '__main__':
     # model_dir = Path(model_dir).absolute()
 
     new_argv = sys.argv[:]
-    db_dir = Path(f'{root}/public_dataset').absolute()
+    db_dir = Path(f'{root}/public_databases').absolute()
 
 
     output_dir = "output_sb"
