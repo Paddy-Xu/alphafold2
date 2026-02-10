@@ -351,6 +351,6 @@ if __name__ == '__main__':
     configure_run_alphafold_flags()
     # FLAGS['pdb_seqres_database_path'].value = os.path.join(FLAGS.data_dir,'pdb_seqres.txt')
     FLAGS['template_mmcif_dir'].value = os.path.join(FLAGS.data_dir,'mmcif_files')
-    FLAGS['obsolete_pdbs_path'].valye = os.path.join(FLAGS.data_dir, 'obsolete.dat')
+    FLAGS['obsolete_pdbs_path'].value = os.path.join(FLAGS.data_dir, 'obsolete.dat')
 
     main(parsed_argv, paths, tbls, doms)
