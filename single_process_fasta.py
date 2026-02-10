@@ -266,6 +266,7 @@ if __name__ == '__main__':
     all_accession = [id.split("|")[1].replace(" ", "") for id in all_ids]
 
     root = "../../../../data"
+    root = "../../data"
 
     # root = "../../../all_msa/backup/"
     output_a3m_root = None
