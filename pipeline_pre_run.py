@@ -334,12 +334,8 @@ class DataPipelineMultimerNew(pipeline_multimer.DataPipeline):
                 description=fasta_chain.description,
                 msa_output_dir=msa_output_dir,
                 is_homomer_or_monomer=is_homomer_or_monomer,
-
                 all_dbs=all_dbs
-
             )
-
-
             chain_features = convert_monomer_features(
                 chain_features, chain_id=chain_id
             )
