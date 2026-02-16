@@ -357,7 +357,7 @@ def remove_empty_columns_from_stockholm_msa(stockholm_msa: str) -> str:
 def deduplicate_stockholm_msa(stockholm_msa: str) -> str:
   """Remove duplicate sequences (ignoring insertions wrt query)."""
   sequence_dict = collections.defaultdict(str)
-
+  
   # First we must extract all sequences from the MSA.
   for line in stockholm_msa.splitlines():
     # Only consider the alignments - ignore reference annotation, empty lines,
