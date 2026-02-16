@@ -17,7 +17,8 @@ bfd_out_path = os.path.join(msa_output_dir, 'small_bfd_hits.sto')
 mgnify_out_path = os.path.join(msa_output_dir, 'mgnify_hits.sto')
 uniref90_out_path = os.path.join(msa_output_dir, 'uniref90_hits.sto')
 
-mgnify_out_path = os.path.join(msa_output_dir, 'mgnify_hits.sto')
+mgnify_out_path = os.path.join(msa_output_dir, 'uniprot_hits.sto')
 
 # bfd_out_path = os.path.join(msa_output_dir, 'bfd_uniref_hits.a3m')
 #
+
