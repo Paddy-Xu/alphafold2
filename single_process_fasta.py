@@ -1,17 +1,30 @@
-from run_alphafold import *
-from alphafold.data.pipeline import *
-from pipeline_pre_run import DataPipelineNew, DataPipelineMultimerNew
+from absl import flags, logging
 from pathlib import Path
 import pathlib
 import shutil
-import tempfile
 import zstandard as zstd
 import sys
-import typing
-from typing import List
-from absl import flags
 
-from run_no_docker import configure_run_alphafold_flags
+# Minimal flag set and constant definitions.
+import run_alphafold_min as run_alphafold  # registers needed FLAGS
+from run_alphafold_min import *
+from run_no_docker_min import *
+
+from alphafold.data.tools import hhsearch, hmmsearch
+from pipeline_pre_run import DataPipelineNew, DataPipelineMultimerNew
+from absl import flags
+from absl import logging
+from alphafold.data import templates
+from alphafold.data.tools import hhsearch
+
+import typing
+import os
+import pathlib
+import pickle
+import shutil
+import sys
+from typing import Any, Dict, Union, List
+
 
 
 def _normalize_db_from_path(path: pathlib.Path) -> str:
@@ -145,8 +158,6 @@ def prepare_precomputed_msas(all_dbs: list[pathlib.Path], data_pipeline, cache_d
 
 
 def main(argv, msa_list: list[pathlib.Path], tbl_list: list[pathlib.Path], dom_list: list[pathlib.Path]):
-    if len(argv) > 1:
-        raise app.UsageError('Too many command-line arguments.')
 
     run_multimer_system = 'multimer' in FLAGS.model_preset
 
@@ -255,7 +266,6 @@ def main(argv, msa_list: list[pathlib.Path], tbl_list: list[pathlib.Path], dom_l
 
 
 if __name__ == '__main__':
-
 
 
     force_executor = True

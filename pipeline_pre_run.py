@@ -242,7 +242,7 @@ class DataPipelineMultimerNew(pipeline_multimer.DataPipeline):
 
     def __init__(
             self,
-            monomer_data_pipeline: pipeline.DataPipeline,
+            monomer_data_pipeline: DataPipelineNew,
             *,
             jackhmmer_binary_path: str,
             uniprot_database_path: str,
@@ -250,18 +250,6 @@ class DataPipelineMultimerNew(pipeline_multimer.DataPipeline):
             use_precomputed_msas: bool = False,
             jackhmmer_n_cpu: int = 8,
     ):
-        """Initializes the data pipeline.
-
-        Args:
-          monomer_data_pipeline: An instance of pipeline.DataPipeline - that runs
-            the data pipeline for the monomer AlphaFold system.
-          jackhmmer_binary_path: Location of the jackhmmer binary.
-          uniprot_database_path: Location of the unclustered uniprot sequences, that
-            will be searched with jackhmmer and used for MSA pairing.
-          max_uniprot_hits: The maximum number of hits to return from uniprot.
-          use_precomputed_msas: Whether to use pre-existing MSAs; see run_alphafold.
-          jackhmmer_n_cpu: Number of CPUs to use for Jackhmmer.
-        """
         self._monomer_data_pipeline = monomer_data_pipeline
         self._uniprot_msa_runner = None
         self._max_uniprot_hits = max_uniprot_hits
@@ -292,12 +280,42 @@ class DataPipelineMultimerNew(pipeline_multimer.DataPipeline):
 
             # We only construct the pairing features if there are 2 or more unique
             # sequences.
+            uniprot_out_path = None
+            for path in all_dbs:
+                if "uniprot" in path.stem:
+                    uniprot_out_path = path
+                    break
+            assert uniprot_out_path is not None
+
             if not is_homomer_or_monomer:
                 all_seq_msa_features = self._all_seq_msa_features(
-                    chain_fasta_path, chain_msa_output_dir
+                    chain_fasta_path, uniprot_out_path
                 )
                 chain_features.update(all_seq_msa_features)
         return chain_features
+
+
+    def _all_seq_msa_features(self, input_fasta_path, uniprot_out_path):
+        """Get MSA features for unclustered uniprot, for pairing."""
+        out_path = uniprot_out_path
+        result = pipeline.run_msa_tool(
+            self._uniprot_msa_runner,
+            input_fasta_path,
+            out_path,
+            'sto',
+            self.use_precomputed_msas,
+        )
+        msa = parsers.parse_stockholm(result['sto'])
+        msa = msa.truncate(max_seqs=self._max_uniprot_hits)
+        all_seq_features = pipeline.make_msa_features([msa])
+        valid_feats = msa_pairing.MSA_FEATURES + ('msa_species_identifiers',)
+        feats = {
+            f'{k}_all_seq': v
+            for k, v in all_seq_features.items()
+            if k in valid_feats
+        }
+        return feats
+
 
     def process(
             self, input_fasta_path: str, msa_output_dir: str, all_dbs
@@ -342,13 +360,17 @@ class DataPipelineMultimerNew(pipeline_multimer.DataPipeline):
             all_chain_features[chain_id] = chain_features
             sequence_features[fasta_chain.sequence] = chain_features
 
-        all_chain_features = add_assembly_features(all_chain_features)
+        return chain_features
 
-        np_example = feature_processing.pair_and_merge(
-            all_chain_features=all_chain_features
-        )
 
-        # Pad MSA to avoid zero-sized extra_msa.
-        np_example = pad_msa(np_example, 512)
 
-        return np_example
+        # all_chain_features = add_assembly_features(all_chain_features)
+        #
+        # np_example = feature_processing.pair_and_merge(
+        #     all_chain_features=all_chain_features
+        # )
+        #
+        # # Pad MSA to avoid zero-sized extra_msa.
+        # np_example = pad_msa(np_example, 512)
+        #
+        # return np_example
