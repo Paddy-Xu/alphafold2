@@ -216,12 +216,12 @@ def configure_run_alphafold_flags():
 
   alphafold_path = pathlib.Path(__file__).parent.parent
   data_dir_path = pathlib.Path(FLAGS.data_dir)
-  if alphafold_path == data_dir_path or alphafold_path in data_dir_path.parents:
-    raise app.UsageError(
-        f'The download directory {FLAGS.data_dir} should not be a subdirectory '
-        'in the AlphaFold repository directory. If it is, the Docker build is '
-        'slow since the large databases are copied during the image creation.'
-    )
+  # if alphafold_path == data_dir_path or alphafold_path in data_dir_path.parents:
+  #   raise app.UsageError(
+  #       f'The download directory {FLAGS.data_dir} should not be a subdirectory '
+  #       'in the AlphaFold repository directory. If it is, the Docker build is '
+  #       'slow since the large databases are copied during the image creation.'
+  #   )
 
   mounts = []
   command_args = []

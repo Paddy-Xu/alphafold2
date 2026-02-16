@@ -1,0 +1,13 @@
+
+*
+!**/
+!*.sh
+!.gitignore
+!*.py
+!README.md
+!requirements.txt
+!LICENSE
+!all_proteins_uniprotkb_organism_id_9606_AND_reviewed_2025_10_21.fasta
+!*.html
+!*.css
+!*.js

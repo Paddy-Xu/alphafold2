@@ -14,3 +14,4 @@ setuptools<72.0.0
 # tensorflow-cpu
 jaxlib==0.4.26
 tensorflow
+zstandard
