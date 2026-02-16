@@ -293,7 +293,7 @@ if __name__ == '__main__':
     # model_dir = Path(model_dir).absolute()
 
     new_argv = sys.argv[:]
-    db_dir = Path(f'{root}/uniprot_test/public_databases').absolute()
+    db_dir = Path(f'{root}/uniprot_test/deep_mind_dataset').absolute()
 
 
     output_dir = "output_sb"
