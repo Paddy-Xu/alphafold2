@@ -52,6 +52,13 @@ def _infer_tbl_dom_paths(msa_path: pathlib.Path) -> tuple[pathlib.Path, pathlib.
     return tbl, dom
 
 
+def _resolve_msa_path_with_zst_fallback(msa_path: pathlib.Path) -> pathlib.Path:
+    if msa_path.exists():
+        return msa_path
+    zst_path = msa_path.with_suffix(f'{msa_path.suffix}.zst')
+    return zst_path if zst_path.exists() else msa_path
+
+
 def _maybe_decompress_zst(src: pathlib.Path, *, suffix: str, dst_dir: pathlib.Path) -> typing.Optional[pathlib.Path]:
     if not src.exists():
         return None
@@ -340,7 +347,8 @@ if __name__ == '__main__':
             }
         paths: List[pathlib.Path] = []
         for suffix in suffix_map.values():
-            paths.append((root / f"{sto_prefix}{suffix}").absolute())
+            raw_path = (root / f"{sto_prefix}{suffix}").absolute()
+            paths.append(_resolve_msa_path_with_zst_fallback(raw_path))
         tbls: List[pathlib.Path] = []
         doms: List[pathlib.Path] = []
         for p in paths:
