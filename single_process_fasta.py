@@ -277,11 +277,11 @@ if __name__ == '__main__':
     all_ids = [record.id for record in records]
     all_accession = [id.split("|")[1].replace(" ", "") for id in all_ids]
 
-    root = "../../data"
+    root = "../"
 
     # root = "../../../all_msa/backup/"
     output_a3m_root = None
-    output_sto_root = f'{root}/random_1000_inputs_results_jackhmmer_on_public_dbs/zstd_sto'
+    output_sto_root = f'{root}/all_msa/backup/random_1000_inputs_results_jackhmmer_on_public_dbs/zstd_sto'
 
     USE_a3m = False
 
@@ -293,7 +293,7 @@ if __name__ == '__main__':
     # model_dir = Path(model_dir).absolute()
 
     new_argv = sys.argv[:]
-    db_dir = Path(f'{root}/public_databases').absolute()
+    db_dir = Path(f'{root}/uniprot_test/public_databases').absolute()
 
 
     output_dir = "output_sb"
