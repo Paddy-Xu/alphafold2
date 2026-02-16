@@ -360,7 +360,7 @@ if __name__ == '__main__':
     parsed_argv = flags.FLAGS(new_argv)  # returns remaining argv after parsing
     configure_run_alphafold_flags()
     # FLAGS['pdb_seqres_database_path'].value = os.path.join(FLAGS.data_dir,'pdb_seqres.txt')
-    FLAGS['template_mmcif_dir'].value = os.path.join(FLAGS.data_dir,'mmcif_files')
-    FLAGS['obsolete_pdbs_path'].value = os.path.join(FLAGS.data_dir, 'obsolete.dat')
+    # FLAGS['template_mmcif_dir'].value = os.path.join(FLAGS.data_dir,'mmcif_files')
+    # FLAGS['obsolete_pdbs_path'].value = os.path.join(FLAGS.data_dir, 'obsolete.dat')
 
     main(parsed_argv, paths, tbls, doms)
