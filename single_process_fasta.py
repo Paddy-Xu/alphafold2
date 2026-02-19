@@ -24,6 +24,7 @@ import pickle
 import shutil
 import sys
 from typing import Any, Dict, Union, List
+import json
 
 
 
@@ -268,6 +269,11 @@ def main(argv, msa_list: list[pathlib.Path], tbl_list: list[pathlib.Path], dom_l
     features_output_path = os.path.join(output_dir, 'features.pkl')
     with open(features_output_path, 'wb') as f:
         pickle.dump(feature_dict, f, protocol=4)
+
+
+    features_output_path = os.path.join(output_dir, 'features.json')
+    with open(features_output_path, 'wb') as f:
+        json.dump(feature_dict, f, protocol=4)
 
     print(f'done for {fasta_name}, no model running needed')
 
