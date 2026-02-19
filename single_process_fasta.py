@@ -272,7 +272,7 @@ def main(argv, msa_list: list[pathlib.Path], tbl_list: list[pathlib.Path], dom_l
 
 
     features_output_path = os.path.join(output_dir, 'features.json')
-    with open(features_output_path, 'wb') as f:
+    with open(features_output_path, 'w', encoding="utf-8") as f:
         json.dump(feature_dict, f)
 
     print(f'done for {fasta_name}, no model running needed')
