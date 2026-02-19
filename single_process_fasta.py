@@ -260,7 +260,7 @@ def main(argv, msa_list: list[pathlib.Path], tbl_list: list[pathlib.Path], dom_l
 
     # Fetch/decompress MSAs locally and truncate depth similar to AF3 get_pickle_single
     prepared_dir = Path(msa_output_dir) / 'precomputed_msas'
-    prepared_all_dbs = prepare_precomputed_msas(all_dbs, data_pipeline, prepared_dir,
+    prepared_all_dbs = prepare_precomputed_msas(all_dbs, monomer_data_pipeline, prepared_dir,
                                                 tbl_paths=tbl_list, dom_paths=dom_list)
 
     feature_dict = data_pipeline.process(
@@ -270,10 +270,10 @@ def main(argv, msa_list: list[pathlib.Path], tbl_list: list[pathlib.Path], dom_l
     with open(features_output_path, 'wb') as f:
         pickle.dump(feature_dict, f, protocol=4)
 
-
-    features_output_path = os.path.join(output_dir, 'features.json')
-    with open(features_output_path, 'w', encoding="utf-8") as f:
-        json.dump(feature_dict, f)
+    #
+    # features_output_path = os.path.join(output_dir, 'features.json')
+    # with open(features_output_path, 'w', encoding="utf-8") as f:
+    #     json.dump(feature_dict, f)
 
     print(f'done for {fasta_name}, no model running needed')
 
@@ -299,7 +299,7 @@ if __name__ == '__main__':
     USE_a3m = False
 
     model_preset = 'monomer'
-    # model_preset = 'multimer'
+    model_preset = 'multimer'
 
     fasta_paths = 'A0A0B4J1U3.fasta'
     # fasta_paths = 'O14818.fasta'
