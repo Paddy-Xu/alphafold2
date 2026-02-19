@@ -338,7 +338,13 @@ class DataPipelineMultimerNew(pipeline_multimer.DataPipeline):
 
         all_chain_features = {}
         sequence_features = {}
-        is_homomer_or_monomer = len(set(input_seqs)) == 1
+
+        # is_homomer_or_monomer = len(set(input_seqs)) == 1
+
+        #TODO: this is currently hard-coded to run multimer
+        is_homomer_or_monomer = False
+
+
         for chain_id, fasta_chain in chain_id_map.items():
             if fasta_chain.sequence in sequence_features:
                 all_chain_features[chain_id] = copy.deepcopy(
