@@ -292,8 +292,8 @@ if __name__ == '__main__':
 
     USE_a3m = False
 
-    # model_preset = 'monomer'
-    model_preset = 'multimer'
+    model_preset = 'monomer'
+    # model_preset = 'multimer'
 
     fasta_paths = 'A0A0B4J1U3.fasta'
     # fasta_paths = 'O14818.fasta'
