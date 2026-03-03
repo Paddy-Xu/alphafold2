@@ -382,6 +382,9 @@ if __name__ == '__main__':
   # if not any(a.startswith("--db_dir=") for a in new_argv):
   #     new_argv.append(f"--db_dir={db_dir}")
 
+  if not any(a.startswith("--use_precomputed_msas=") for a in new_argv):
+      new_argv.append(f"--use_precomputed_msas=True")
+
   if not any(a.startswith("--output_dir=") for a in new_argv):
       new_argv.append(f"--output_dir={output_dir}")
 
