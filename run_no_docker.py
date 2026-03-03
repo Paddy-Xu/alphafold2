@@ -394,23 +394,23 @@ if __name__ == '__main__':
 
   import sys
 
-  # Import original module
-  import run_alphafold as run_alphafold
 
-  from pipeline_pre_run import *
-
-  # Replace the class reference
-  from alphafold.data import pipeline
-  from alphafold.data import pipeline_multimer
-
-  DataPipelineNew.process = DataPipelineNew.process_a3m
-
-  pipeline.DataPipeline = DataPipelineNew
-  pipeline_multimer.DataPipeline = DataPipelineMultimerNew
-
-
-  run_alphafold.DataPipelineNew = DataPipelineNew
-  run_alphafold.DataPipelineMultimerNew = DataPipelineMultimerNew
+  # import run_alphafold as run_alphafold
+  #
+  # from pipeline_pre_run import *
+  #
+  # # Replace the class reference
+  # from alphafold.data import pipeline
+  # from alphafold.data import pipeline_multimer
+  #
+  # DataPipelineNew.process = DataPipelineNew.process_a3m
+  #
+  # pipeline.DataPipeline = DataPipelineNew
+  # pipeline_multimer.DataPipeline = DataPipelineMultimerNew
+  #
+  #
+  # run_alphafold.DataPipelineNew = DataPipelineNew
+  # run_alphafold.DataPipelineMultimerNew = DataPipelineMultimerNew
 
   app.run(main)
 
