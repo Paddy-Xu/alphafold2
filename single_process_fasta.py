@@ -26,8 +26,6 @@ import sys
 from typing import Any, Dict, Union, List
 import json
 
-
-
 def _normalize_db_from_path(path: pathlib.Path) -> str:
     name = path.name.lower()
     if 'mgy' in name or 'mgnify' in name:
