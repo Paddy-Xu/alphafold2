@@ -400,16 +400,12 @@ if __name__ == '__main__':
 
   # # Replace the class reference
   # from alphafold.data import pipeline
-  # from alphafold.data import pipeline_multimer
-  #
-  # DataPipelineNew.process = DataPipelineNew.process_a3m
-  #
-  # pipeline.DataPipeline = DataPipelineNew
-  # pipeline_multimer.DataPipeline = DataPipelineMultimerNew
-  #
-  #
-  run_alphafold.DataPipelineNew = DataPipelineNew
-  run_alphafold.DataPipelineMultimerNew = DataPipelineMultimerNew
+  from alphafold.data import pipeline_multimer
+
+  DataPipelineNew.process = DataPipelineNew.process_a3m
+
+  pipeline.DataPipeline = DataPipelineNew
+  pipeline_multimer.DataPipeline = DataPipelineMultimerNew
 
   app.run(main)
 
