@@ -319,6 +319,11 @@ class DataPipelineNew(pipeline.DataPipeline):
                 jackhmmer_uniref90_result['a3m'], 'a3m'
             )
 
+
+            with open(os.path.join(msa_output_dir, 'msa_for_templates.a3m'), 'w') as f:
+                f.write(msa_for_templates_a3m)
+
+
             if self.template_searcher.input_format == 'sto':
                 pdb_templates_result = self.template_searcher.query(msa_for_templates)
             elif self.template_searcher.input_format == 'a3m':
@@ -344,10 +349,12 @@ class DataPipelineNew(pipeline.DataPipeline):
             msa_format='a3m',
             use_precomputed_msas=True,
         )
-        _, cleaned_unpaired_a3m = self._prepare_template_msa(
-            unpaired_result['a3m'], 'a3m'
-        )
-        unpaired = parsers.parse_a3m(cleaned_unpaired_a3m)
+
+        # _, cleaned_unpaired_a3m = self._prepare_template_msa(
+        #     unpaired_result['a3m'], 'a3m'
+        # )
+
+        unpaired = parsers.parse_a3m(unpaired_result['a3m'])
 
         templates_result = self.template_featurizer.get_templates(
             query_sequence=input_sequence, hits=pdb_template_hits
