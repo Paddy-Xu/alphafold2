@@ -129,6 +129,8 @@ class DataPipelineNew(pipeline.DataPipeline):
 
     def process(self, input_fasta_path: str, msa_output_dir: str, all_dbs) -> FeatureDict:
         """Runs alignment tools on the input sequence and creates features."""
+        print(f'trying to load precomputed a3m from {msa_output_dir}')
+
         with open(input_fasta_path) as f:
             input_fasta_str = f.read()
         input_seqs, input_descs = parsers.parse_fasta(input_fasta_str)
@@ -282,6 +284,8 @@ class DataPipelineNew(pipeline.DataPipeline):
         return {**sequence_features, **msa_features, **templates_result.features}
 
     def process_a3m(self, input_fasta_path: str, msa_output_dir: str) -> FeatureDict:
+
+        print(f'trying to load precomputed a3m from {msa_output_dir}')
         """Runs alignment tools on the input sequence and creates features."""
         with open(input_fasta_path) as f:
             input_fasta_str = f.read()
@@ -486,6 +490,9 @@ class DataPipelineMultimerNew(pipeline_multimer.DataPipeline):
     def _all_seq_msa_features_a3m(self, input_fasta_path, uniprot_out_path):
         """Get MSA features for unclustered uniprot, for pairing."""
         out_path = uniprot_out_path
+
+        print(f'trying to load paired a3m from {os.path.dirname(out_path)}')
+
 
         paired_path = os.path.join(os.path.dirname(out_path), 'paired.a3m')
         paired_result = run_msa_tool(
