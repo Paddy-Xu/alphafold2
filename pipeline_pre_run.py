@@ -1,9 +1,10 @@
+import string
+
 from alphafold.data.pipeline import *
 import alphafold.data.pipeline as pipeline
 
 import alphafold.data.pipeline_multimer as pipeline_multimer
 from alphafold.data.pipeline_multimer import *
-from typing import Tuple
 
 
 class DataPipelineNew(pipeline.DataPipeline):
@@ -79,7 +80,7 @@ class DataPipelineNew(pipeline.DataPipeline):
         stockholm_lines.append('//')
         return '\n'.join(stockholm_lines) + '\n'
 
-    def _prepare_template_msa(self, msa_string: str, msa_format: str) -> Tuple[str, str]:
+    def _normalize_msa_to_stockholm(self, msa_string: str, msa_format: str) -> str:
         if msa_format == 'sto':
             stockholm_msa = msa_string
         elif msa_format == 'a3m':
@@ -89,7 +90,38 @@ class DataPipelineNew(pipeline.DataPipeline):
 
         stockholm_msa = parsers.deduplicate_stockholm_msa(stockholm_msa)
         stockholm_msa = parsers.remove_empty_columns_from_stockholm_msa(stockholm_msa)
-        return stockholm_msa, parsers.convert_stockholm_to_a3m(stockholm_msa)
+        return stockholm_msa
+
+    @staticmethod
+    def _deduplicate_a3m(a3m_string: str) -> str:
+        sequences, descriptions = parsers.parse_fasta(a3m_string)
+        if not sequences:
+            raise ValueError('A3M input is empty.')
+
+        deletion_table = str.maketrans('', '', string.ascii_lowercase)
+        output_chunks = []
+        seen_sequences = set()
+        for description, sequence in zip(descriptions, sequences):
+            aligned_sequence = sequence.translate(deletion_table)
+            if aligned_sequence in seen_sequences:
+                continue
+            seen_sequences.add(aligned_sequence)
+            output_chunks.append(f'>{description}\n{sequence}')
+        return '\n'.join(output_chunks) + '\n'
+
+    @staticmethod
+    def _validate_a3m_query(a3m_string: str, expected_query: str) -> None:
+        sequences, descriptions = parsers.parse_fasta(a3m_string)
+        if not sequences:
+            raise ValueError('Converted A3M is empty.')
+        actual_query = sequences[0]
+        if actual_query != expected_query:
+            query_name = descriptions[0] if descriptions else 'query'
+            raise ValueError(
+                'Converted A3M query does not match the input sequence for '
+                f'{query_name!r}: expected length {len(expected_query)}, '
+                f'got {len(actual_query)}.'
+            )
 
     def __init__(
             self,
@@ -315,18 +347,16 @@ class DataPipelineNew(pipeline.DataPipeline):
             with open(pdb_hits_out_path, 'r') as f:
                 pdb_templates_result = f.read()
         else:
-            msa_for_templates, msa_for_templates_a3m = self._prepare_template_msa(
-                jackhmmer_uniref90_result['a3m'], 'a3m'
-            )
-
-
-            with open(os.path.join(msa_output_dir, 'msa_for_templates.a3m'), 'w') as f:
-                f.write(msa_for_templates_a3m)
-
-
             if self.template_searcher.input_format == 'sto':
+                msa_for_templates = self._normalize_msa_to_stockholm(
+                    jackhmmer_uniref90_result['a3m'], 'a3m'
+                )
                 pdb_templates_result = self.template_searcher.query(msa_for_templates)
             elif self.template_searcher.input_format == 'a3m':
+                msa_for_templates_a3m = self._deduplicate_a3m(
+                    jackhmmer_uniref90_result['a3m']
+                )
+                self._validate_a3m_query(msa_for_templates_a3m, input_sequence)
                 pdb_templates_result = self.template_searcher.query(msa_for_templates_a3m)
             else:
                 raise ValueError(
@@ -349,11 +379,6 @@ class DataPipelineNew(pipeline.DataPipeline):
             msa_format='a3m',
             use_precomputed_msas=True,
         )
-
-        # _, cleaned_unpaired_a3m = self._prepare_template_msa(
-        #     unpaired_result['a3m'], 'a3m'
-        # )
-
         unpaired = parsers.parse_a3m(unpaired_result['a3m'])
 
         templates_result = self.template_featurizer.get_templates(
