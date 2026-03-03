@@ -361,7 +361,10 @@ if __name__ == '__main__':
   model_dir = '../alphafold_models'
   new_argv = sys.argv[:]
   db_dir = Path('/scratch/project_465002572/uniprot_test/deep_mind_dataset').absolute()
-  output_dir = "output_sb"
+
+
+  output_dir = "/scratch/project_465002572/af3_self/runs/precompute_msa/"
+
 
   if not any(a.startswith("--fasta_paths=") for a in new_argv):
       new_argv.append(f"--fasta_paths={fasta_paths}")
