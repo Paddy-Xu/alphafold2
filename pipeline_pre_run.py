@@ -400,7 +400,6 @@ class DataPipelineNew(pipeline.DataPipeline):
                     line = re.sub('[a-z]+', '', line)  # Remove inserted residues.
                 lines.append(line + '\n')
             msa = ''.join(lines)
-
             self._validate_a3m_query(msa, input_sequence)
 
             pdb_templates_result = self.template_searcher.query(msa)
