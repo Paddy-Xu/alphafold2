@@ -396,6 +396,8 @@ class DataPipelineNew(pipeline.DataPipeline):
 
             lines = []
             for line in msa_for_templates_a3m.splitlines():
+                if line == '>query':
+                    continue
                 if not line.startswith('>'):
                     line = re.sub('[a-z]+', '', line)  # Remove inserted residues.
                 lines.append(line + '\n')
