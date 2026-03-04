@@ -8,6 +8,7 @@ from alphafold.data import pipeline
 from alphafold.data import pipeline_multimer
 
 DataPipelineNew.process = DataPipelineNew.process_a3m
+DataPipelineMultimerNew.process = DataPipelineMultimerNew.process_a3m
 
 pipeline.DataPipeline = DataPipelineNew
 pipeline_multimer.DataPipeline = DataPipelineMultimerNew
