@@ -38,7 +38,9 @@ if __name__ == '__main__':
         new_argv.append(f"--max_template_date=2020-05-14")
 
     if not any(a.startswith("--model_preset=") for a in new_argv):
-        new_argv.append(f"--model_preset=monomer")
+        # new_argv.append(f"--model_preset=monomer")
+        new_argv.append(f"--model_preset=multimer")
+
 
     if not any(a.startswith("--db_preset=") for a in new_argv):
         new_argv.append(f"--db_preset=reduced_dbs")
