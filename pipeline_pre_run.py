@@ -92,6 +92,41 @@ class DataPipelineNew(pipeline.DataPipeline):
         stockholm_msa = parsers.remove_empty_columns_from_stockholm_msa(stockholm_msa)
         return stockholm_msa
 
+
+    @staticmethod
+    def deduplicate_a3m_safe(a3m_string: str) -> str:
+        sequences, descriptions = parsers.parse_fasta(a3m_string)
+
+        if not sequences:
+            raise ValueError("A3M input is empty")
+
+        deletion_table = str.maketrans('', '', string.ascii_lowercase)
+
+        seen = set()
+        out_desc = []
+        out_seq = []
+
+        for desc, seq in zip(descriptions, sequences):
+
+            key = seq.translate(deletion_table)
+            if key in seen:
+                continue
+            seen.add(key)
+            out_desc.append(desc)
+            out_seq.append(seq)
+
+        # --- alignment safety check ---
+        lengths = {len(s) for s in out_seq}
+
+        if len(lengths) != 1:
+            raise ValueError(
+                f"A3M alignment broken after deduplication: lengths={lengths}"
+            )
+
+        return "\n".join(
+            f">{d}\n{s}" for d, s in zip(out_desc, out_seq)
+        ) + "\n"
+
     @staticmethod
     def _deduplicate_a3m(a3m_string: str) -> str:
         sequences, descriptions = parsers.parse_fasta(a3m_string)
@@ -352,11 +387,15 @@ class DataPipelineNew(pipeline.DataPipeline):
                 # )
                 # pdb_templates_result = self.template_searcher.query(msa_for_templates)
 
-            msa_for_templates_a3m = self._deduplicate_a3m(
-                jackhmmer_uniref90_result['a3m']
-            )
+            # msa_for_templates_a3m = self._deduplicate_a3m(
+            #     jackhmmer_uniref90_result['a3m']
+            # )
+
+            msa_for_templates_a3m = jackhmmer_uniref90_result['a3m']
+
             self._validate_a3m_query(msa_for_templates_a3m, input_sequence)
-            pdb_templates_result = self.template_searcher.query(msa_for_templates_a3m)
+
+            pdb_templates_result = self.template_searcher.query(jackhmmer_uniref90_result['a3m'])
 
             with open(pdb_hits_out_path, 'w') as f:
                 f.write(pdb_templates_result)
