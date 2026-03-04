@@ -394,15 +394,8 @@ class DataPipelineNew(pipeline.DataPipeline):
 
             msa_for_templates_a3m = jackhmmer_uniref90_result['a3m']
 
-            lines = []
-            for line in msa_for_templates_a3m.splitlines():
-                if line == '>query':
-                    continue
-                if not line.startswith('>'):
-                    line = re.sub('[a-z]+', '', line)  # Remove inserted residues.
-                lines.append(line + '\n')
-            msa = ''.join(lines)
             self._validate_a3m_query(msa, input_sequence)
+
 
             pdb_templates_result = self.template_searcher.query(msa)
 
