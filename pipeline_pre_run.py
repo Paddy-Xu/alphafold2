@@ -6,6 +6,7 @@ import alphafold.data.pipeline as pipeline
 import alphafold.data.pipeline_multimer as pipeline_multimer
 from alphafold.data.pipeline_multimer import *
 
+import re
 
 class DataPipelineNew(pipeline.DataPipeline):
     """Runs the alignment tools and assembles the input features."""
@@ -393,9 +394,16 @@ class DataPipelineNew(pipeline.DataPipeline):
 
             msa_for_templates_a3m = jackhmmer_uniref90_result['a3m']
 
-            self._validate_a3m_query(msa_for_templates_a3m, input_sequence)
+            lines = []
+            for line in msa_for_templates_a3m.splitlines():
+                if not line.startswith('>'):
+                    line = re.sub('[a-z]+', '', line)  # Remove inserted residues.
+                lines.append(line + '\n')
+            msa = ''.join(lines)
 
-            pdb_templates_result = self.template_searcher.query(jackhmmer_uniref90_result['a3m'])
+            self._validate_a3m_query(msa, input_sequence)
+
+            pdb_templates_result = self.template_searcher.query(msa)
 
             with open(pdb_hits_out_path, 'w') as f:
                 f.write(pdb_templates_result)
