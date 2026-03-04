@@ -347,22 +347,16 @@ class DataPipelineNew(pipeline.DataPipeline):
             with open(pdb_hits_out_path, 'r') as f:
                 pdb_templates_result = f.read()
         else:
-            if self.template_searcher.input_format == 'sto':
-                msa_for_templates = self._normalize_msa_to_stockholm(
-                    jackhmmer_uniref90_result['a3m'], 'a3m'
-                )
-                pdb_templates_result = self.template_searcher.query(msa_for_templates)
-            elif self.template_searcher.input_format == 'a3m':
-                msa_for_templates_a3m = self._deduplicate_a3m(
-                    jackhmmer_uniref90_result['a3m']
-                )
-                self._validate_a3m_query(msa_for_templates_a3m, input_sequence)
-                pdb_templates_result = self.template_searcher.query(msa_for_templates_a3m)
-            else:
-                raise ValueError(
-                    'Unrecognized template input format: '
-                    f'{self.template_searcher.input_format}'
-                )
+                # msa_for_templates = self._normalize_msa_to_stockholm(
+                #     jackhmmer_uniref90_result['a3m'], 'a3m'
+                # )
+                # pdb_templates_result = self.template_searcher.query(msa_for_templates)
+
+            msa_for_templates_a3m = self._deduplicate_a3m(
+                jackhmmer_uniref90_result['a3m']
+            )
+            self._validate_a3m_query(msa_for_templates_a3m, input_sequence)
+            pdb_templates_result = self.template_searcher.query(msa_for_templates_a3m)
 
             with open(pdb_hits_out_path, 'w') as f:
                 f.write(pdb_templates_result)
