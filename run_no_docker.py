@@ -347,6 +347,7 @@ def main(argv):
 
 
 if __name__ == '__main__':
+
   flags.mark_flags_as_required([
       'data_dir',
       'fasta_paths',
@@ -359,12 +360,11 @@ if __name__ == '__main__':
 
   # model_dir = Path(model_dir).absolute()
   model_dir = '../alphafold_models'
-  new_argv = sys.argv[:]
   db_dir = Path('/scratch/project_465002572/uniprot_test/deep_mind_dataset').absolute()
-
 
   output_dir = "/scratch/project_465002572/af3_self/runs/precompute_msa/"
 
+  new_argv = sys.argv[:]
 
   if not any(a.startswith("--fasta_paths=") for a in new_argv):
       new_argv.append(f"--fasta_paths={fasta_paths}")
@@ -392,20 +392,6 @@ if __name__ == '__main__':
 
   sys.argv = new_argv
 
-  import sys
-
-
-  import run_alphafold as run_alphafold
-  from pipeline_pre_run import *
-
-  # # Replace the class reference
-  # from alphafold.data import pipeline
-  from alphafold.data import pipeline_multimer
-
-  DataPipelineNew.process = DataPipelineNew.process_a3m
-
-  pipeline.DataPipeline = DataPipelineNew
-  pipeline_multimer.DataPipeline = DataPipelineMultimerNew
 
   app.run(main)
 
