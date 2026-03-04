@@ -366,15 +366,6 @@ class DataPipelineNew(pipeline.DataPipeline):
         input_description = input_descs[0]
         num_res = len(input_sequence)
 
-        uniref90_out_path = os.path.join(msa_output_dir, 'uniref90_hits.a3m')
-        jackhmmer_uniref90_result = run_msa_tool(
-            msa_runner=self.jackhmmer_uniref90_runner,
-            input_fasta_path=input_fasta_path,
-            msa_out_path=uniref90_out_path,
-            msa_format='a3m',
-            use_precomputed_msas=True,
-            max_sto_sequences=self.uniref_max_hits,
-        )
 
         pdb_hits_out_path = os.path.join(
             msa_output_dir, f'pdb_hits.{self.template_searcher.output_format}'
@@ -383,23 +374,33 @@ class DataPipelineNew(pipeline.DataPipeline):
             with open(pdb_hits_out_path, 'r') as f:
                 pdb_templates_result = f.read()
         else:
-                # msa_for_templates = self._normalize_msa_to_stockholm(
-                #     jackhmmer_uniref90_result['a3m'], 'a3m'
-                # )
-                # pdb_templates_result = self.template_searcher.query(msa_for_templates)
+            uniref90_out_path = os.path.join(msa_output_dir, 'uniref90_hits.sto')
+            jackhmmer_uniref90_result = run_msa_tool(
+                msa_runner=self.jackhmmer_uniref90_runner,
+                input_fasta_path=input_fasta_path,
+                msa_out_path=uniref90_out_path,
+                msa_format='sto',
+                use_precomputed_msas=True,
+                max_sto_sequences=self.uniref_max_hits,
+            )
 
-            # msa_for_templates_a3m = self._deduplicate_a3m(
-            #     jackhmmer_uniref90_result['a3m']
-            # )
+            msa_for_templates = jackhmmer_uniref90_result['sto']
+            msa_for_templates = parsers.deduplicate_stockholm_msa(msa_for_templates)
+            msa_for_templates = parsers.remove_empty_columns_from_stockholm_msa(
+                msa_for_templates
+            )
+            if self.template_searcher.input_format == 'sto':
+                pdb_templates_result = self.template_searcher.query(msa_for_templates)
+            elif self.template_searcher.input_format == 'a3m':
+                uniref90_msa_as_a3m = parsers.convert_stockholm_to_a3m(msa_for_templates)
+                pdb_templates_result = self.template_searcher.query(uniref90_msa_as_a3m)
+            else:
+                raise ValueError(
+                    'Unrecognized template input format: '
+                    f'{self.template_searcher.input_format}'
+                )
 
-            msa_for_templates_a3m = jackhmmer_uniref90_result['a3m']
-
-            self._validate_a3m_query(msa, input_sequence)
-
-
-            pdb_templates_result = self.template_searcher.query(msa)
-
-            with open(pdb_hits_out_path, 'w') as f:
+        with open(pdb_hits_out_path, 'w') as f:
                 f.write(pdb_templates_result)
 
         pdb_template_hits = self.template_searcher.get_template_hits(
