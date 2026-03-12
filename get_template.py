@@ -85,16 +85,15 @@ if __name__ == "__main__":
 
     run_multimer_system = False
 
+
     db_dir = '/scratch/project_465002572/uniprot_test/deep_mind_dataset'
 
-    FLAGS = flags.FLAGS
 
+    FLAGS = flags.FLAGS
     new_argv = sys.argv[:]
 
     if not any(a.startswith("--max_template_date=") for a in new_argv):
         new_argv.append(f"--max_template_date=2020-05-14")
-
-
     if not any(a.startswith("--db_preset=") for a in new_argv):
         new_argv.append(f"--db_preset=reduced_dbs")
     if not any(a.startswith("--data_dir=") for a in new_argv):
@@ -116,6 +115,8 @@ if __name__ == "__main__":
 
 
     FLAGS(sys.argv)
+    configure_run_alphafold_flags()
+
 
 
     print(os.path.abspath('.'), flush=True)
