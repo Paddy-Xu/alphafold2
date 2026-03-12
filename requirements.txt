@@ -17,4 +17,4 @@ tensorflow
 zstandard
 
 boto3
-sqlite3
+pysqlite3

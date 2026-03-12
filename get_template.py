@@ -15,7 +15,7 @@ from Bio import SeqIO
 
 print("import pickle_single done", flush=True)
 
-DB_PATH = "../api/index_s3_all_0303_local.sqlite"
+DB_PATH = "../../af3_self/src/api/index_s3_all_0303_local.sqlite"
 DB_PATH  = (Path(__file__).resolve().parent / DB_PATH).resolve()
 s3 = boto3.client("s3")
 
