@@ -1,4 +1,4 @@
-from pipeline_pre_run import *
+from alphafold.data.pipeline import *
 import os
 import tempfile
 import zstandard as zstd
@@ -75,7 +75,6 @@ def decompress_zst_to_sto(path: Path, cleanup_paths: list[Path]) -> Path:
 
 if __name__ == "__main__":
 
-    FLAGS = flags.FLAGS
 
     MAX_TEMPLATE_HITS = 20
     RELAX_MAX_ITERATIONS = 0
@@ -88,6 +87,7 @@ if __name__ == "__main__":
 
     db_dir = '/scratch/project_465002572/uniprot_test/deep_mind_dataset'
 
+    FLAGS = flags.FLAGS
 
     new_argv = sys.argv[:]
 
@@ -109,11 +109,14 @@ if __name__ == "__main__":
     sys.argv = new_argv
 
 
-
     try:
         sys.stdout.reconfigure(line_buffering=True)
     except Exception:
         pass
+
+
+    FLAGS(sys.argv)
+
 
     print(os.path.abspath('.'), flush=True)
 
