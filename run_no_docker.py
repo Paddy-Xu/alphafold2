@@ -362,7 +362,7 @@ if __name__ == '__main__':
   model_dir = '../alphafold_models'
   db_dir = Path('/scratch/project_465002572/uniprot_test/deep_mind_dataset').absolute()
 
-  output_dir = "/scratch/project_465002572/af3_self/runs/precompute_msa/"
+  output_dir = "/scratch/project_465002572/af3_self/runs/precompute_msa/truncated"
 
   new_argv = sys.argv[:]
 
