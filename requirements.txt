@@ -15,3 +15,6 @@ setuptools<72.0.0
 jaxlib==0.4.26
 tensorflow
 zstandard
+
+boto3
+sqlite3

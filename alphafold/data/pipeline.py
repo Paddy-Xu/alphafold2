@@ -280,3 +280,12 @@ class DataPipeline:
     )
 
     return {**sequence_features, **msa_features, **templates_result.features}
+
+if __name__ == '__main__':
+
+    precomputed_msa = parsers.truncate_stockholm_msa('/Users/jpz195/Downloads/truncated/O15552/small_bfd_hits.sto', 5000)
+    msa_for_templates = precomputed_msa
+    msa_for_templates = parsers.deduplicate_stockholm_msa(msa_for_templates)
+    msa_for_templates = parsers.remove_empty_columns_from_stockholm_msa(
+        msa_for_templates
+    )

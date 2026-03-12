@@ -1,7 +1,7 @@
 from run_no_docker import *
-import sys
 
-import run_alphafold as run_alphafold
+# from run_alphafold import *
+
 from pipeline_pre_run import *
 
 from alphafold.data import pipeline
@@ -23,10 +23,9 @@ if __name__ == '__main__':
 
     fasta_paths = 'O15552.fasta'
 
-
     output_dir = "/scratch/project_465002572/af3_self/runs/precompute_msa/"
 
-    db_dir = Path('/scratch/project_465002572/uniprot_test/deep_mind_dataset').absolute()
+    db_dir = '/scratch/project_465002572/uniprot_test/deep_mind_dataset'
 
     model_dir = '../alphafold_models'
 
@@ -55,6 +54,12 @@ if __name__ == '__main__':
 
     sys.argv = new_argv
 
+    flags.mark_flags_as_required([
+        'fasta_paths',
+        'output_dir',
+        'data_dir',
+        # 'use_gpu_relax',
+    ])
 
     app.run(main)
 
