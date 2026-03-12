@@ -15,7 +15,7 @@ from Bio import SeqIO
 
 print("import pickle_single done", flush=True)
 
-DB_PATH = "../../af3_self/src/api/index_s3_all_0303_local.sqlite"
+DB_PATH = "../af3_self/src/api/index_s3_all_0303_local.sqlite"
 DB_PATH  = (Path(__file__).resolve().parent / DB_PATH).resolve()
 s3 = boto3.client("s3")
 
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     mem_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     print(f"Memory usage: {mem_kb / 1024 / 1024:.2f} GB", flush=True)
 
-    all_huamn_protein_database_path = "../../all_proteins_uniprotkb_organism_id_9606_AND_reviewed_2025_10_21.fasta"
+    all_huamn_protein_database_path = "../af3_self/all_proteins_uniprotkb_organism_id_9606_AND_reviewed_2025_10_21.fasta"
 
     all_huamn_protein_database_path = (Path(__file__).resolve().parent / all_huamn_protein_database_path).resolve()
 
