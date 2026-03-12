@@ -305,6 +305,9 @@ if __name__ == "__main__":
                     f'{template_searcher.input_format}'
                 )
 
+
+            print(f'completed, saving results to {pdb_hits_out_path}', flush=True)
+
             with open(pdb_hits_out_path, 'w') as f:
                 f.write(pdb_templates_result)
 
