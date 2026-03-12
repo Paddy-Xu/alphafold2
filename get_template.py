@@ -99,10 +99,12 @@ if __name__ == "__main__":
         new_argv.append(f"--db_preset=reduced_dbs")
     if not any(a.startswith("--data_dir=") for a in new_argv):
         new_argv.append(f"--data_dir={db_dir}")
+
     if not any(a.startswith("--use_precomputed_msas=") for a in new_argv):
         new_argv.append(f"--use_precomputed_msas=True")
-    if not any(a.startswith("--output_dir=") for a in new_argv):
-        new_argv.append(f"--output_dir={output_dir}")
+
+    # if not any(a.startswith("--output_dir=") for a in new_argv):
+    #     new_argv.append(f"--output_dir={output_dir}")
 
     sys.argv = new_argv
 
