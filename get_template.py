@@ -12,6 +12,8 @@ from pathlib import Path
 import pathlib
 from Bio import SeqIO
 
+from run_no_docker import *
+
 
 print("import pickle_single done", flush=True)
 
@@ -72,6 +74,40 @@ def decompress_zst_to_sto(path: Path, cleanup_paths: list[Path]) -> Path:
 
 
 if __name__ == "__main__":
+
+    FLAGS = flags.FLAGS
+
+    MAX_TEMPLATE_HITS = 20
+    RELAX_MAX_ITERATIONS = 0
+    RELAX_ENERGY_TOLERANCE = 2.39
+    RELAX_STIFFNESS = 10.0
+    RELAX_EXCLUDE_RESIDUES = []
+    RELAX_MAX_OUTER_ITERATIONS = 3
+
+    run_multimer_system = False
+
+    db_dir = '/scratch/project_465002572/uniprot_test/deep_mind_dataset'
+
+
+    new_argv = sys.argv[:]
+
+    if not any(a.startswith("--max_template_date=") for a in new_argv):
+        new_argv.append(f"--max_template_date=2020-05-14")
+
+
+    if not any(a.startswith("--db_preset=") for a in new_argv):
+        new_argv.append(f"--db_preset=reduced_dbs")
+    if not any(a.startswith("--data_dir=") for a in new_argv):
+        new_argv.append(f"--data_dir={db_dir}")
+    if not any(a.startswith("--use_precomputed_msas=") for a in new_argv):
+        new_argv.append(f"--use_precomputed_msas=True")
+    if not any(a.startswith("--output_dir=") for a in new_argv):
+        new_argv.append(f"--output_dir={output_dir}")
+
+    sys.argv = new_argv
+
+
+
     try:
         sys.stdout.reconfigure(line_buffering=True)
     except Exception:
@@ -115,8 +151,8 @@ if __name__ == "__main__":
         print(f"Memory usage: {mem_kb / 1024 / 1024:.2f} GB at start of {i} loop for {uniprot_id}", flush=True)
 
         file_paths = {}
-        dom_paths = {}
-        tbl_paths = {}
+        # dom_paths = {}
+        # tbl_paths = {}
 
         output_dir = save_root
         output_path = pathlib.Path(output_dir)
@@ -124,10 +160,44 @@ if __name__ == "__main__":
 
         output_path.mkdir(parents=True, exist_ok=True)
 
-        unpaired_path = output_path / f"unpaired.a3m"
-        paired_path = output_path / f"paired.a3m"
+        pdb_hits_out_path = output_path / f"{uniprot_id}_pdb_hits.txt"
+
+        # template_searcher = TemplateSearcher
+        # template_featurizer = templates.TemplateHitFeaturizer
+
+        if run_multimer_system:
+            template_searcher = hmmsearch.Hmmsearch(
+                binary_path=FLAGS.hmmsearch_binary_path,
+                hmmbuild_binary_path=FLAGS.hmmbuild_binary_path,
+                database_path=FLAGS.pdb_seqres_database_path,
+                cpu=FLAGS.hmmsearch_n_cpu,
+            )
+            template_featurizer = templates.HmmsearchHitFeaturizer(
+                mmcif_dir=FLAGS.template_mmcif_dir,
+                max_template_date=FLAGS.max_template_date,
+                max_hits=MAX_TEMPLATE_HITS,
+                kalign_binary_path=FLAGS.kalign_binary_path,
+                release_dates_path=None,
+                obsolete_pdbs_path=FLAGS.obsolete_pdbs_path,
+            )
+        else:
+            template_searcher = hhsearch.HHSearch(
+                binary_path=FLAGS.hhsearch_binary_path,
+                databases=[FLAGS.pdb70_database_path],
+                cpu=FLAGS.hhsearch_n_cpu,
+            )
+            template_featurizer = templates.HhsearchHitFeaturizer(
+                mmcif_dir=FLAGS.template_mmcif_dir,
+                max_template_date=FLAGS.max_template_date,
+                max_hits=MAX_TEMPLATE_HITS,
+                kalign_binary_path=FLAGS.kalign_binary_path,
+                release_dates_path=None,
+                obsolete_pdbs_path=FLAGS.obsolete_pdbs_path,
+            )
+
+
         force_recompute = False
-        if (not force_recompute) and unpaired_path.exists() and paired_path.exists() and unpaired_path.stat().st_size > 0 and paired_path.stat().st_size > 0:
+        if (not force_recompute) and pdb_hits_out_path.exists() and pdb_hits_out_path.stat().st_size > 0:
             print(f"MSA files already exist for {uniprot_id}, skipping generation.")
             i += 1
             continue
@@ -155,8 +225,8 @@ if __name__ == "__main__":
                 break
 
             file_paths[db_name] = row["file_path"]
-            dom_paths[db_name] = row["dom_path"]
-            tbl_paths[db_name] = row["tbl_path"]
+            # dom_paths[db_name] = row["dom_path"]
+            # tbl_paths[db_name] = row["tbl_path"]
 
             n_seqs = row["n_seqs"]
             if n_seqs is None:
@@ -165,7 +235,7 @@ if __name__ == "__main__":
                 too_large = True
                 break
 
-            elif n_seqs > 10000:
+            elif n_seqs > 3e4:
                 print(f"Skipping {uniprot_id} {db_name}: n_seqs is {n_seqs}, which is too large",
                       flush=True)
                 too_large = True
@@ -200,11 +270,9 @@ if __name__ == "__main__":
             print(f'completed decompression and local preparation for {uniprot_id}, now saving MSAs...', flush=True)
 
             uniref90_out_path = final_dict["uniref90"]
-            pdb_hits_out_path = output_path / f"{uniprot_id}_pdb_hits.txt"
 
             uniref_max_hits: int = 10000
-            template_searcher =  TemplateSearcher
-            template_featurizer = templates.TemplateHitFeaturizer
+
 
             jackhmmer_uniref90_result = run_msa_tool(
                 msa_runner=None,
@@ -240,7 +308,7 @@ if __name__ == "__main__":
 
         finally:
             cleanup_files(cleanup_paths)
-            del final_dict, final_dict_dom, final_dict_tbl, file_paths, dom_paths, tbl_paths
+            del final_dict, final_dict_dom, final_dict_tbl, file_paths
             gc.collect()
             i += 1
 
