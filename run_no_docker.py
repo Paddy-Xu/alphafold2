@@ -228,12 +228,14 @@ def configure_run_alphafold_flags():
 
   # Mount each fasta path as a unique target directory.
   target_fasta_paths = []
-  for i, fasta_path in enumerate(FLAGS.fasta_paths):
-    # mount, target_path = _create_mount(f'fasta_path_{i}', fasta_path)
-    # mounts.append(mount)
-    target_path = fasta_path
-    target_fasta_paths.append(target_path)
-  command_args.append(f'--fasta_paths={",".join(target_fasta_paths)}')
+  if FLAGS.fasta_paths:
+
+      for i, fasta_path in enumerate(FLAGS.fasta_paths):
+        # mount, target_path = _create_mount(f'fasta_path_{i}', fasta_path)
+        # mounts.append(mount)
+        target_path = fasta_path
+        target_fasta_paths.append(target_path)
+      command_args.append(f'--fasta_paths={",".join(target_fasta_paths)}')
 
   database_paths = [
       ('uniref90_database_path', uniref90_database_path),
