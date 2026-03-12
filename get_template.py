@@ -90,7 +90,7 @@ if __name__ == "__main__":
     mem_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     print(f"Memory usage: {mem_kb / 1024 / 1024:.2f} GB", flush=True)
 
-    save_root = (Path(__file__).resolve().parent / "../../../all_a3ms").resolve()
+    save_root = (Path(__file__).resolve().parent / "../all_a3ms").resolve()
 
     print("Processing UniProt IDs in streaming mode...", flush=True)
 
