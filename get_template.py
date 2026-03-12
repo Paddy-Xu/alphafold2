@@ -241,7 +241,7 @@ if __name__ == "__main__":
                 too_large = True
                 break
 
-            elif n_seqs > 3e4:
+            elif n_seqs > 8e4:
                 print(f"Skipping {uniprot_id} {db_name}: n_seqs is {n_seqs}, which is too large",
                       flush=True)
                 too_large = True
